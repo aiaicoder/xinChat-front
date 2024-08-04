@@ -1,0 +1,75 @@
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(239, 239, 239);
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bfbfbf;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #bfbfbf;
+}
+
+::-webkit-scrollbar-corner {
+    background: #bfbfbf;
+}
+
+:root {
+    --text1: #9499A0;
+    --text2: #61666d;
+    --icon: #9499a0;
+    --text_link: #409eff;
+    --blue: #007fff;
+    --tag: #7BCDEF;
+    --pink: #FF6699;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    color: #636d7e;
+    font-size: 14px;
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: middle;
+}
+
+.a-link {
+    cursor: pointer;
+    color: var(--link);
+    text-decoration: none;
+}
+
+.el-form-item{
+    align-items: center;
+}
+
+
+.container-body{
+    margin: 0 auto;
+    padding-top: 5px;
+}
+
+.el-button{
+    .iconfont::before{
+        margin-right: 5px;
+    }
+}
+
+//去除 el-dropdown 边框
+.el-dropdown,
+.el-dropdown * {
+    outline: none;
+}
