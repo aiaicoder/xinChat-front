@@ -82,7 +82,7 @@ export class UserControllerService {
         });
     }
     /**
-     * userLogin
+     * 用户登录
      * @param userLoginRequest userLoginRequest
      * @returns BaseResponse OK
      * @returns any Created
@@ -120,7 +120,7 @@ export class UserControllerService {
         });
     }
     /**
-     * userRegister
+     * 用户注册
      * @param userRegisterRequest userRegisterRequest
      * @returns BaseResponse OK
      * @returns any Created
@@ -132,6 +132,27 @@ export class UserControllerService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/user/register',
+            body: userRegisterRequest,
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+    /**
+     * 重置密码
+     * @param userRegisterRequest userRegisterRequest
+     * @returns BaseResponse OK
+     * @returns any Created
+     * @throws ApiError
+     */
+    public static resetPasswordUsingPost1(
+        userRegisterRequest: UserRegisterRequest,
+    ): CancelablePromise<BaseResponse | any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/user/resetPassword',
             body: userRegisterRequest,
             errors: {
                 401: `Unauthorized`,

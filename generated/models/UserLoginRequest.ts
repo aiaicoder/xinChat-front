@@ -6,6 +6,7 @@ export type UserLoginRequest = {
     checkCode?: string;
     checkCodeKey?: string;
     email?: string;
-    userPassword?: string;
+    password?: string;
+    rememberMe?: boolean;
 };
 

@@ -4,20 +4,36 @@
             <div class="login-panel">
                 <el-form
                         class="login-register"
-                        ref="formDataRef"
+                        ref="ruleFormRef"
                         :model="formData"
                         status-icon
                         :rules="rules"
+                        @submit.prevent
                 >
                     <div class="login-title">xinChat</div>
-                    <el-form-item label="邮箱" prop="email">
+                    <el-form-item prop="email">
                         <el-input size="large" v-model.trim="formData.email" type="text" placeholder="请输入邮箱">
                             <template #prefix>
                                 <span class="iconfont icon-email"></span>
                             </template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="密码" prop="password">
+                    <!--登录密码，注册密码，找回密码-->
+                    <el-form-item prop="password" v-if="opType == 1">
+                        <el-input
+                                v-model.trim="formData.password"
+                                type="password"
+                                placeholder="请输入密码"
+                                size="large"
+                                show-password
+                        >
+                            <template #prefix>
+                                <span class="iconfont icon-password"></span>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                    <!--注册密码，重置密码-->
+                    <el-form-item prop="password" v-if="opType ==0 || opType == 2">
                         <el-input
                                 v-model="formData.password"
                                 type="password"
@@ -30,8 +46,21 @@
                             </template>
                         </el-input>
                     </el-form-item>
-
-                    <el-form-item label="验证码" prop="checkCode">
+                    <!--确认密码-->
+                    <el-form-item prop="checkPassword" v-if="opType == 0 || opType == 2">
+                        <el-input
+                                v-model.trim="formData.checkPassword"
+                                type="password"
+                                placeholder="请确认密码"
+                                size="large"
+                                show-password
+                        >
+                            <template #prefix>
+                                <span class="iconfont icon-password"></span>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item prop="checkCode">
                         <div class="check-code-panel">
                             <el-input size="large" v-model.trim="formData.checkCode" type="text"
                                       placeholder="请输入验证码">
@@ -41,17 +70,32 @@
                             </el-input>
                             <img :src=checkCodeUrl class="check-code" @click="getCheckCode" alt="图片验证码"/>
                         </div>
-
                     </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" size="large"
-                                   class="op-btn">
-                            登录
+                    <el-form-item v-if="opType == 1">
+                        <div class="rememberMe-panel">
+                            <el-checkbox v-model="formData.rememberMe">记住我</el-checkbox>
+                        </div>
+                        <div class="no-account">
+                            <a href="javascript:void(0)" class="a-link" @click="showPanel(2)">忘记密码?</a>
+                            <a href="javascript:void(0)" class="a-link" @click="showPanel(0)">还没有账号?</a>
+                        </div>
+                    </el-form-item>
+                    <!--找回密码-->
+                    <el-form-item v-if="opType == 2">
+                        <a href="javascript:void(0)" class="a-link" @click="showPanel(1)">去登陆?</a>
+                    </el-form-item>
+                    <!-- 注册-->
+                    <el-form-item v-if="opType == 0">
+                        <a href="javascript:void(0)" class="a-link" @click="showPanel(1)">已有账号?</a>
+                    </el-form-item>
+                    <el-form-item
+                    >
+                        <el-button type="primary" size="large" class="op-btn" @click="submitForm(ruleFormRef)">
+                            <span v-if="opType == 0">注册</span>
+                            <span v-if="opType == 1">登录</span>
+                            <span v-if="opType == 2">重置密码</span>
                         </el-button>
                     </el-form-item>
-                    <div class="no-account">
-                        <span class="a-link">还没有账号？</span>
-                    </div>
                 </el-form>
             </div>
         </div>
@@ -59,28 +103,28 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from 'vue'
-import type {FormRules} from 'element-plus'
+import {getCurrentInstance, onMounted, reactive, ref} from 'vue'
 import {UserControllerService} from "../../generated";
-import {ElMessage} from 'element-plus'
+import {ElMessage, FormInstance} from 'element-plus'
 
-const formDataRef = ref()
-const formData = reactive({
-    email: '',
-    password: '',
-    checkCode: '',
-})
-const rules = reactive<FormRules<typeof formData>>({
-    email: [{required: true, message: '请输入邮箱'}],
-    password: [{required: true, message: '请输入密码'}]
-})
+//获取组件的代理对象
+const {proxy} = getCurrentInstance()
+const ruleFormRef = ref<FormInstance>()
+
+//操作类型 0:注册，1:登录，2:修改密码
+const opType = ref(1)
+//切换展示样式
+const showPanel = (type) => {
+    //切换的时候重置表单
+    restForm();
+    opType.value = type;
+}
+
+//图片base64
 const checkCodeUrl = ref()
+//校验图片验证
 const checkCodeKey = ref()
-
-//页面加载的时候先获取验证码
-onMounted(() => {
-    getCheckCode();
-})
+//获取验证码
 const getCheckCode = async () => {
     const result = await UserControllerService.checkCodeUsingGet1()
     if (result.code == 0) {
@@ -92,6 +136,124 @@ const getCheckCode = async () => {
             type: 'error',
         })
     }
+}
+//页面加载的时候先获取验证码
+onMounted(() => {
+    getCheckCode();
+})
+
+
+const formData = reactive({
+    email: '',
+    password: '',
+    checkPassword: '',
+    checkCode: '',
+    checkCodeKey: checkCodeKey,
+    rememberMe: false
+})
+
+//密码校验
+const checkResetPassword = (rule, value, callback) => {
+    if (value != formData.password) {
+        console.log(formData.password)
+        callback(new Error('两次输入的密码不一致'))
+    } else {
+        callback()
+    }
+}
+
+const rules = reactive({
+    email: [{required: true, message: '邮箱不能为空'},
+        {validator: proxy.Verify.email, message: "邮箱格式不正确"}
+    ],
+    password: [{required: true, message: '密码不能为空'},
+        {validator: proxy.Verify.password, message: "密码长度至少为8位"}
+    ],
+    checkPassword: [{required: true, message: '密码不能为空'},
+        {validator: checkResetPassword, message: "密码不一致"}
+    ],
+    checkCode: [{required: true, message: '验证码不能为空'}]
+})
+
+//用户注册
+const register = async () => {
+    const res = await UserControllerService.userRegisterUsingPost1(formData)
+    if (res.code == 0) {
+        if (res.data?.token) {
+            localStorage.setItem("xinChat-token", res.data.token);
+        }
+        ElMessage({
+            message: "注册成功，赶快去登录吧",
+            type: 'success',
+        })
+    } else {
+        ElMessage({
+            message: res.message,
+            type: 'error',
+        })
+    }
+}
+
+
+//用户登录
+const login = async () => {
+    const res = await UserControllerService.userLoginUsingPost1(formData)
+    if (res.code == 0) {
+        if (res.data?.token) {
+            localStorage.setItem("xinChat-token", res.data.token);
+        }
+        ElMessage({
+            message: "登录成功",
+            type: 'success',
+        })
+    } else {
+        ElMessage({
+            message: res.message,
+            type: 'error',
+        })
+    }
+}
+
+//重置密码
+const resetPassword = async () => {
+    const res = await UserControllerService.resetPasswordUsingPost1(formData);
+    if (res.code === 0) {
+        ElMessage({
+            message: "重置密码成功",
+            type: 'success',
+        });
+    } else {
+        ElMessage({
+            message: res.message,
+            type: 'error',
+        });
+    }
+};
+
+const submitForm = async (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    await formEl.validate((valid, fields) => {
+        if (valid) {
+            switch (opType.value) {
+                case 0:
+                    register();
+                    break;
+                case 1:
+                    login();
+                    break;
+                case 2:
+                    resetPassword();
+                    break;
+            }
+        } else {
+            console.log('error submit!', fields)
+        }
+    })
+}
+//重置表单
+const restForm = () => {
+    getCheckCode();
+    ruleFormRef.value?.resetFields()
 }
 
 
@@ -149,7 +311,6 @@ const getCheckCode = async () => {
 .no-account {
   width: 100%;
   display: flex;
-  margin-left: 80%;
   justify-content: space-between;
 }
 
