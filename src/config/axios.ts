@@ -1,4 +1,8 @@
 import axios from "axios";
+// 定义常量来避免硬编码，方便后期维护
+const UNAUTHORIZED_CODES = new Set([40100, 40101, 40102, 40103, 40104]);
+const LOGIN_REQUEST_URL = "user/get/login";
+const LOGIN_PAGE_PATH = "user/login";
 
 // 添加请求拦截器
 axios.interceptors.request.use(
@@ -23,10 +27,18 @@ axios.interceptors.response.use(
         // 2xx 范围内的状态码都会触发该函数。
         // 对响应数据做点什么
         const responseData = response.data;
+        //未登录
+        if (UNAUTHORIZED_CODES.has(response.data.code)) {
+            // 使用 Set 来判断状态码，优化了原有的冗长的条件判断
+            if (!response.request.responseURL.includes(LOGIN_REQUEST_URL) && !window.location.pathname.includes(LOGIN_PAGE_PATH)) {
+                window.location.href = `/user/login?redirect=${window.location.href}`;
+            }
+        }
         //如果返回的是流
-        if (responseType === "blob" || responseType === "arraybuffer"){
+        if (responseType === "blob" || responseType === "arraybuffer") {
             return responseData;
         }
+
         return response;
     },
     function (error) {
