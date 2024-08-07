@@ -1,6 +1,5 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 // @ts-ignore
-import LoginView from "@/views/LoginView.vue";
 import {routes} from "@/router/routes";
 
 

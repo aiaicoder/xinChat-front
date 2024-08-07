@@ -11,11 +11,9 @@ const config = reactive({
 </script>
 
 <template>
-    <header>
         <el-config-provider :locale="zhCn">
             <RouterView></RouterView>
         </el-config-provider>
-    </header>
 </template>
 
 <style scoped>

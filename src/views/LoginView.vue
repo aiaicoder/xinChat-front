@@ -202,7 +202,9 @@ const login = async () => {
     const res = await UserControllerService.userLoginUsingPost(formData)
     if (res.code == 0) {
         if (res.data?.token) {
-            localStorage.setItem("xinChat-token", res.data.token);
+            const expiration = Date.now() + 7 * 1000; // 过期时间戳
+            localStorage.setItem('xinChat-token', res.data.token);
+            localStorage.setItem('xinChat-token-expiration', String(expiration));
         }
         ElMessage({
             message: "登录成功",

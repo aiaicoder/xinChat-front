@@ -1,68 +1,100 @@
 <template>
     <div id="layout">
         <div class="left-side">
-            <div></div>
             <div class="menu-list">
                 <el-col>
                     <el-menu
                             :default-active="activeIndex"
+                            class="sidebar-el-menu"
+                            router
                     >
-                        <el-menu-item v-for="item in showRoutes" :key="item.path" :index="item.path"
-                                      @click="hightlight(item.path)">
-                            <el-icon v-if="item.name == '首页'">
-                                <ChatDotRound/>
-                            </el-icon>
-                            <el-icon v-else-if="item.name == '用户联系人'">
-                                <User/>
-                            </el-icon>
-                            <el-icon v-else-if="item.name == '用户设置'">
-                                <Setting/>
+                        <el-menu-item v-for="subItem in showSubRoutes" :key="subItem.path" :index="subItem.path"
+                                      @click="highLight(subItem.path)">
+                            <el-icon>
+                               <Component :is="subItem.icon"></Component>
                             </el-icon>
                         </el-menu-item>
                         <div class="user-info">
-                            <el-avatar :size="50" :src="loginStore.loginUser.userAvatar"></el-avatar>
-                            <div>{{ loginStore.loginUser.userName}}</div>
+                            <el-dropdown>
+                                <el-avatar :size="50" :src="loginStore.loginUser.userAvatar"></el-avatar>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item>
+                                            <el-icon>
+                                                <Edit/>
+                                            </el-icon>
+                                            <span>修改信息</span>
+                                        </el-dropdown-item>
+                                        <el-dropdown-item @click="logout">
+                                            <el-icon>
+                                                <SwitchButton/>
+                                            </el-icon>
+                                            <span>退出登录</span>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                         </div>
                     </el-menu>
-
                 </el-col>
             </div>
-
         </div>
         <div class="right-container">
-
+            <router-view v-slot="{ Component }">
+                <keep-alive include="Chat">
+                    <component :is="Component" ref="componentRef"></component>
+                </keep-alive>
+            </router-view>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import {
-    ChatDotRound,
-    Setting, User,
+    ChatDotRound, Edit,
+    SwitchButton, Tools, User,
 } from '@element-plus/icons-vue'
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
 import {useLoginUserStore} from "@/stores/useLoginUserStore";
+import {ElMessage} from "element-plus";
 
 const loginStore = useLoginUserStore()
-const activeIndex = ref('/')
-const hightlight = (path) => {
+const activeIndex = ref('/chat')
+const highLight = (path) => {
     activeIndex.value = path
 }
 
+//过滤子路由
+const showSubRoutes = computed(() => {
+    return showRoutes.value.flatMap(route => route.children || []);
+});
+
 const showRoutes = computed(() => {
     return routes.filter((route) => {
-        if (route.meta?.hideInMenu) {
+        if (route.meta?.hideInMenu && route.path != '/') {
             return false;
         }
-        return checkAccess(
-            //如果直接通过复制拿到的值，不是响应式数据
+        const hasAccess = checkAccess(
             loginStore.loginUser,
             route.meta?.access as string
         );
+        if (route.children) {
+            route.children = route.children.filter(child => !child.meta?.hideInMenu && checkAccess(loginStore.loginUser, child.meta?.access as string));
+        }
+        return hasAccess;
     });
 });
+
+const logout = async () => {
+    await loginStore.logout();
+    ElMessage({
+        message: "登出成功",
+        type: 'success',
+    })
+    location.reload();
+};
 
 </script>
 
@@ -77,6 +109,21 @@ const showRoutes = computed(() => {
   width: 74px;
   text-align: center;
   align-items: center;
+}
+
+
+.sidebar-el-menu {
+  min-height: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+//头像要居中要保持和父元素一样的宽度
+.user-info {
+  width: 74px;
+  bottom: 0;
+  align-items: center;
+  position: fixed;
 }
 
 </style>

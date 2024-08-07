@@ -3,11 +3,20 @@ import axios from "axios";
 const UNAUTHORIZED_CODES = new Set([40100, 40101, 40102, 40103, 40104]);
 const LOGIN_REQUEST_URL = "user/get/login";
 const LOGIN_PAGE_PATH = "user/login";
-
+const isTokenValid = () => {
+    const token = localStorage.getItem('xinChat-token');
+    const expiration = localStorage.getItem('xinChat-token-expiration');
+    if (expiration && token) {
+        return Date.now() < parseInt(expiration);
+    }
+    return false;
+}
 // 添加请求拦截器
 axios.interceptors.request.use(
     function (config) {
+        console.log("进入请求拦截器");
         console.log("xinChat-token", localStorage.getItem("xinChat-token"));
+        //校验token是否过期
         if (localStorage.getItem("xinChat-token")) {
             config.headers["xinChat-token"] = localStorage.getItem("xinChat-token");
         }

@@ -19,6 +19,7 @@ router.beforeEach(async (to, from, next) => {
     }
     //根据路由中的meta信息进行判断，如果没有access属性那么就表示该页面无需登录
     const needAccess = (to.meta?.access as string) ?? Access_Enum.UnLogin;
+    console.log(needAccess)
     //表明该页面需要登录
     if (needAccess !== Access_Enum.UnLogin) {
         //如果用户未登录
