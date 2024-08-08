@@ -11,7 +11,7 @@
                         <el-menu-item v-for="subItem in showSubRoutes" :key="subItem.path" :index="subItem.path"
                                       @click="highLight(subItem.path)">
                             <el-icon>
-                               <Component :is="subItem.icon"></Component>
+                               <Component :is="subItem.meta.icon"></Component>
                             </el-icon>
                         </el-menu-item>
                         <div class="user-info">

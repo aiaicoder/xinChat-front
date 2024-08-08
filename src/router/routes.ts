@@ -19,33 +19,30 @@ export const routes: Array<RouteRecordRaw> = [
                 path: "/chat",
                 name: "聊天页面",
                 // @ts-ignore
-                icon:"ChatDotRound",
-                // @ts-ignore
                 component: () => import("@/views/chat/Chat.vue"),
                 meta: {
                     access: ACCESS_ENUM.User,
+                    icon:"ChatDotRound",
                 },
             },
             {
                 path: "/contact",
                 name: "联系人",
                 // @ts-ignore
-                icon:"UserFilled",
-                // @ts-ignore
                 component: () => import("@/views/contact/UserContact.vue"),
                 meta: {
+                    icon:"UserFilled",
                     access: ACCESS_ENUM.User,
                 },
             },
             {
                 path: "/Regulate",
-                // @ts-ignore
-                icon:"Operation",
                 name: "管理",
                 // @ts-ignore
                 component: () => import("@/views/regulate/Regulate.vue"),
                 meta: {
                     access: ACCESS_ENUM.Admin,
+                    icon:"Operation",
                 },
             },
             {
