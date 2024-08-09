@@ -3,7 +3,7 @@ import router from "@/router";
 import Access_Enum from "@/access/ACCESS_ENUM";
 
 import checkAccess from "@/access/checkAccess";
-import {useLoginUserStore} from "@/stores/useLoginUserStore";
+import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 
 router.beforeEach(async (to, from, next) => {
     const loginStore = useLoginUserStore();

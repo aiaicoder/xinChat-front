@@ -1,8 +1,6 @@
-
 import type {RouteRecordRaw} from "vue-router";
 // @ts-ignore
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
-
 
 
 // @ts-ignore
@@ -14,7 +12,7 @@ export const routes: Array<RouteRecordRaw> = [
         // @ts-ignore
         component: () => import("@/views/LayoutView.vue"),
         redirect: "/chat",
-        children:[
+        children: [
             {
                 path: "/chat",
                 name: "聊天页面",
@@ -22,7 +20,7 @@ export const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/chat/Chat.vue"),
                 meta: {
                     access: ACCESS_ENUM.User,
-                    icon:"ChatDotRound",
+                    icon: "ChatDotRound",
                 },
             },
             {
@@ -30,8 +28,23 @@ export const routes: Array<RouteRecordRaw> = [
                 name: "联系人",
                 // @ts-ignore
                 component: () => import("@/views/contact/UserContact.vue"),
+                redirect: "/contact/blank",
+                children: [
+                    {
+                        path: "/contact/blank",
+                        name: "空白页",
+                        // @ts-ignore
+                        component: () => import("@/views/contact/BlankPage.vue"),
+                    },
+                    {
+                        path: "/contact/search",
+                        name: "搜索",
+                        // @ts-ignore
+                        component: () => import("@/views/contact/Search.vue"),
+                    }
+                ],
                 meta: {
-                    icon:"UserFilled",
+                    icon: "UserFilled",
                     access: ACCESS_ENUM.User,
                 },
             },
@@ -42,7 +55,7 @@ export const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/regulate/Regulate.vue"),
                 meta: {
                     access: ACCESS_ENUM.Admin,
-                    icon:"Operation",
+                    icon: "Operation",
                 },
             },
             {
@@ -74,7 +87,6 @@ export const routes: Array<RouteRecordRaw> = [
             access: ACCESS_ENUM.UnLogin,
         },
     },
-
 
 
 ];

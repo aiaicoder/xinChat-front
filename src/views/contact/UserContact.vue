@@ -32,7 +32,10 @@
             </div>
         </template>
         <template #right-content>
-            <div class="title-panel drag">{{rightTile}}</div>
+            <div class="title-panel drag">{{ rightTile }}</div>
+            <router-view v-slot="{ Component }">
+                <component :is="Component" ref="componentRef"></component>
+            </router-view>
         </template>
     </Layout>
 </template>
@@ -40,9 +43,21 @@
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
 import {ref} from "vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const route = useRoute();
+const router = useRouter()
+const rightTile = ref()
+const partJump = (data: any) => {
+    if (data.showTitle) {
+        rightTile.value = data.name
+    } else {
+        rightTile.value = null
+    }
+    //todo 处理联系人好友申请一读
+    router.push(data.path)
+}
+
 const partList = ref([
     {
         partName: '新朋友',
@@ -51,6 +66,7 @@ const partList = ref([
                 name: '搜好友',
                 icon: 'icon-search',
                 iconBgColor: '#fa9d3b',
+                showTitle: true,
                 path: '/contact/search'
             },
             {
@@ -101,7 +117,6 @@ const partList = ref([
 
 ])
 
-const rightTile = ref()
 </script>
 
 <style scoped>
@@ -123,7 +138,7 @@ const rightTile = ref()
 
 .contact-list {
     border-top: 1px solid #ddd;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 70px);
     overflow: hidden;
 
     &:hover {

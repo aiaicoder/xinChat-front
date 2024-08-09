@@ -57,7 +57,7 @@ import {
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
-import {useLoginUserStore} from "@/stores/useLoginUserStore";
+import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {ElMessage} from "element-plus";
 
 const loginStore = useLoginUserStore()
