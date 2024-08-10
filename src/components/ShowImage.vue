@@ -1,0 +1,85 @@
+<template>
+    <div class="image-panel" @click="showImageHandle">
+        <el-image :src="serverUrl" fit="scale-down" :width="width"></el-image>
+    </div>
+</template>
+
+<script setup lang="ts">
+import {computed} from "vue";
+
+const props = defineProps({
+    width: {
+        type: Number,
+        default: 170
+    },
+    showPlay:{
+        type: Boolean,
+        default: false
+    },
+    userUrl:{
+        type:[String,Number]
+    },
+    fileId:{
+        type:[String,Number]
+    },
+    partType:{
+        type: String,
+        default: 'avatar'
+    },
+    fileType:{
+        type:Number,
+        default: 0
+    },
+    forceGet:{
+        type: Boolean,
+        default: false
+    }
+})
+const serverUrl = computed(() =>{
+    if (!props.fileId){
+        return;
+    }
+    return "";
+    //todo 获取线上图片的url
+})
+
+</script>
+
+<style lang="scss" scoped>
+.image-panel {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  cursor: pointer;
+  max-width: 170px;
+  background: #ddd;
+
+  .icon-image-error {
+    margin: 0 30px;
+    font-size: 30px;
+    color: #838383;
+  }
+
+  .play-panel {
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    .icon-video-play {
+      font-size: 35px;
+      color: #fff;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+</style>

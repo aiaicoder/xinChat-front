@@ -17,7 +17,7 @@
                 <span class="contact-type">
                     {{contactTypeName}}
                 </span>
-                <div>{{searchResult.nickName}}</div>
+                <UserBaseInfo :user-info="searchResult" :show-area="searchResult.contactType == 'USER'"></UserBaseInfo>
             </div>
             <div class="op-btn" v-if="searchResult.contactId != loginStore.loginUser.id">
                 <el-button
@@ -40,14 +40,17 @@
         </div>
         <div v-if="!searchResult" class="no-data">没有搜索到任何结果</div>
     </ContentPanel>
+    <SearchAdd ref="searchAddRef" @reload="restForm"></SearchAdd>
 </template>
 
 <script setup lang="ts">
 import ContentPanel from "@/components/ContentPanel.vue";
-import {computed, ref} from "vue";
+import {computed, nextTick, ref} from "vue";
 import {ElMessage} from "element-plus";
 import {UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
+import UserBaseInfo from "@/components/UserBaseInfo.vue";
+import SearchAdd from "@/views/contact/SearchAdd.vue";
 
 const contactId = ref("");
 const loginStore = useLoginUserStore();
@@ -80,6 +83,10 @@ const search = async () => {
     }else {
         searchResult.value = null;
     }
+}
+const searchAddRef = ref();
+const applyContact = () => {
+    searchAddRef.value.show(searchResult.value);
 }
 </script>
 

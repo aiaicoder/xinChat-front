@@ -1,11 +1,15 @@
 {
   "files": [],
+  "compilerOptions": {
+    "target": "es2015",
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"
     },
     {
       "path": "./tsconfig.app.json"
-    }
-  ]
+    },
+  ],
+  "include": ["src/**/*.ts"]
 }

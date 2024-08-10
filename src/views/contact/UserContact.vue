@@ -21,13 +21,18 @@
                             <div :class="['iconfont',sub.icon]" :style="{background: sub.iconBgColor}"></div>
                             <div class="text">{{ sub.name }}</div>
                         </div>
+                        <template v-for="(contact,index) in item.contactData" :key='index'>
+                            <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']" @click="contactDetail(contact,item)">
+                                <Avatar :userId="contact[item.contactId]" width="35" height="35" borderRadius="50%" showDetail/>
+                                <div class="text">{{contact[item.contactName]}}</div>
+                            </div>
+                        </template>
+                        <template v-if="item.contactData && item.contactData.length == 0">
+                            <div class="no-data">
+                                {{ item.emptyMsg }}
+                            </div>
+                        </template>
                     </div>
-                    <template v-for="(contact,index) in item.contactData" :key='index'></template>
-                    <template v-if="item.contactData && item.contactData.length == 0">
-                        <div class="no-data">
-                            {{ item.emptyMsg }}
-                        </div>
-                    </template>
                 </template>
             </div>
         </template>
@@ -42,22 +47,16 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import {UserContactControllerService} from "../../../generated";
+import {useLoginUserStore} from "@/stores/UseLoginUserStore";
+import Avatar from "@/components/Avatar.vue";
 
 const route = useRoute();
 const router = useRouter()
 const rightTile = ref()
-const partJump = (data: any) => {
-    if (data.showTitle) {
-        rightTile.value = data.name
-    } else {
-        rightTile.value = null
-    }
-    //todo 处理联系人好友申请一读
-    router.push(data.path)
-}
-
+const loginUse = useLoginUserStore()
 const partList = ref([
     {
         partName: '新朋友',
@@ -116,7 +115,36 @@ const partList = ref([
     }
 
 ])
+const partJump = (data: any) => {
+    if (data.showTitle) {
+        rightTile.value = data.name
+    } else {
+        rightTile.value = null
+    }
+    //todo 处理联系人好友申请一读
+    router.push(data.path)
+}
 
+const loadContact = async (contactType: String) => {
+    const loadUserContact = {
+        userId: loginUse.loginUser.id,
+        contactType: contactType,
+    }
+    const result = await UserContactControllerService.loadContactUsingPost1(loadUserContact)
+    if (result.code !== 0) {
+        return;
+    }
+
+    if (contactType === 'GROUP') {
+        partList.value[2].contactData = result.data.records;
+    } else if (contactType === 'USER') {
+        partList.value[3].contactData = result.data.records;
+    }
+}
+onMounted(() => {
+    loadContact('GROUP')
+    loadContact('USER')
+})
 </script>
 
 <style scoped>
@@ -130,78 +158,67 @@ const partList = ref([
     background: #F7F7F7;
     display: flex;
     align-items: center;
-}
-
-.iconfont {
-    font-size: 12px;
+    .iconfont {
+        font-size: 12px;
+    }
 }
 
 .contact-list {
     border-top: 1px solid #ddd;
     height: calc(100vh - 70px);
     overflow: hidden;
-
     &:hover {
-        overflow-y: auto;
+        overflow: auto;
     }
-}
 
-.part-tile {
-    color: #515151;
-    padding-left: 10px;
-    margin-top: 10px;
-}
-
-.part-list {
-    border-bottom: 1px solid #d6d6d6;
-
-    .part-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 10px;
-        position: relative;
-
-        &:hover {
-            cursor: pointer;
-            background: #d6d6d6;
+    .part-tile {
+        color: #515151;
+        padding-left: 5px;
+        margin-top: 10px;
+    }
+    .part-list {
+        border-bottom: 1px solid #d6d6d6;
+        .part-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 10px;
+            position: relative;
+            &:hover {
+                cursor: pointer;
+                background: #d6d6d7;
+            }
         }
-    }
-
-    .iconfont {
-        width: 35px;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        color: #fff;
-    }
-
-    .text {
-        flex: 1;
-        color: #000000;
-        margin-left: 10px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .active {
-        background: #c4c4c4;
-
-        &:hover {
+        .iconfont {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+        .text {
+            flex: 1;
+            color: #000000;
+            margin-left: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .no-data {
+            text-align: center;
+            font-size: 12px;
+            color: #9d9d9d;
+            line-height: 30px;
+        }
+        .active {
             background: #c4c4c4;
+            &:hover {
+                background: #c4c4c4;
+            }
         }
     }
 }
-
-.no-data {
-    text-align: center;
-    font-size: 12px;
-    color: #9d9d9d;
-    line-height: 30px;
-}
-
 .title-panel {
     width: 100%;
     height: 60px;

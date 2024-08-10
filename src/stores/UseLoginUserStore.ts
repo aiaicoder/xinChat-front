@@ -18,7 +18,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
     })
 
     async function fetchLoginUser() {
-        const res = await UserControllerService.getLoginUserUsingGet()
+        const res = await UserControllerService.getLoginUserUsingGet1()
 
         if (res.code == 0 && res.data) {
             console.log("获取用户信息成功", res.data)
@@ -28,7 +28,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
     }
 
     async function logout() {
-        const res = await UserControllerService.userLogoutUsingPost()
+        const res = await UserControllerService.userLogoutUsingPost1()
         if (res.code == 0) {
             console.log("退出成功")
             setLoginUser({
