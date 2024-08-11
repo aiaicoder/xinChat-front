@@ -47,16 +47,20 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, ref,watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import Avatar from "@/components/Avatar.vue";
 
+import {ContactSateStore} from "@/stores/ContactStateStore";
+
+const contactStore = ContactSateStore();
 const route = useRoute();
 const router = useRouter()
 const rightTile = ref()
 const loginUse = useLoginUserStore()
+const searchKey = ref()
 const partList = ref([
     {
         partName: '新朋友',
@@ -113,8 +117,10 @@ const partList = ref([
         contactPath: '/contact/userDetail',
         emptyMsg: '暂无好友',
     }
-
 ])
+const search = () => {
+
+}
 const partJump = (data: any) => {
     if (data.showTitle) {
         rightTile.value = data.name
@@ -141,6 +147,18 @@ const loadContact = async (contactType: String) => {
         partList.value[3].contactData = result.data.records;
     }
 }
+
+watch(() => contactStore.contactReload,(newVal,oldValue) =>{
+    if (!newVal){
+        return;
+    }
+    switch (newVal) {
+        case "USER":
+        case "GROUP":
+            loadContact(newVal)
+            break;
+    }
+},{immediate: true, deep: true})
 onMounted(() => {
     loadContact('GROUP')
     loadContact('USER')

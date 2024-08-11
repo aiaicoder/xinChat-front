@@ -15,22 +15,22 @@
         <div v-if="searchResult && Object.keys(searchResult).length > 0" class="search-result-panel">
             <div class="search-result">
                 <span class="contact-type">
-                    {{contactTypeName}}
+                    {{ contactTypeName }}
                 </span>
                 <UserBaseInfo :user-info="searchResult" :show-area="searchResult.contactType == 'USER'"></UserBaseInfo>
             </div>
             <div class="op-btn" v-if="searchResult.contactId != loginStore.loginUser.id">
                 <el-button
-                    type="primary"
-                    v-if="
+                        type="primary"
+                        v-if="
                     searchResult.status == null ||
                     searchResult.status == 0 ||
                     searchResult.status == 2 ||
                     searchResult.status == 3 ||
                     searchResult.status == 4
                    "
-                    @click="applyContact"
-                >{{searchResult.contactType == 'USER' ? "添加到联系人" : "申请加群"}}
+                        @click="applyContact"
+                >{{ searchResult.contactType == 'USER' ? "添加到联系人" : "申请加群" }}
                 </el-button>
                 <el-button type="primary" v-if="searchResult.status == 1" @click="sendMessage">
                     发消息
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import ContentPanel from "@/components/ContentPanel.vue";
-import {computed, nextTick, ref} from "vue";
+import {computed,ref, watch} from "vue";
 import {ElMessage} from "element-plus";
 import {UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
@@ -55,13 +55,13 @@ import SearchAdd from "@/views/contact/SearchAdd.vue";
 const contactId = ref("");
 const loginStore = useLoginUserStore();
 const searchResult = ref({});
-const contactTypeName = computed(() =>{
-    if (loginStore.loginUser.id === searchResult.value.contactId){
+const contactTypeName = computed(() => {
+    if (loginStore.loginUser.id === searchResult.value.contactId) {
         return '自己';
     }
     if (searchResult.value.contactType == 'USER') {
         return '用户';
-    }else {
+    } else {
         return '群组';
     }
 });
@@ -74,13 +74,13 @@ const search = async () => {
         })
         return;
     }
-    const result = await UserContactControllerService.searchUsingPost({
+    const result = await UserContactControllerService.searchUsingPost1({
         userId: loginStore.loginUser.id,
         contactId: contactId.value
     })
     if (result.code === 0 && result.data) {
         searchResult.value = result.data;
-    }else {
+    } else {
         searchResult.value = null;
     }
 }
@@ -88,6 +88,12 @@ const searchAddRef = ref();
 const applyContact = () => {
     searchAddRef.value.show(searchResult.value);
 }
+const restForm = () => {
+    //@ts-ignore
+    searchResult.value = null;
+    contactId.value = '';
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -95,6 +101,7 @@ const applyContact = () => {
   padding-top: 50px;
   display: flex;
   align-items: center;
+
   :deep(.el-input_wrapper) {
     border-radius: 4px 0 0 4px;
   }

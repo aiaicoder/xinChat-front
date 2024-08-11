@@ -37,7 +37,9 @@ import {nextTick, reactive, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {UserContactControllerService} from "../../../generated";
 import {ElMessage} from "element-plus";
+import {ContactSateStore} from "@/stores/ContactStateStore";
 
+const contactStore = ContactSateStore();
 const loginUse = useLoginUserStore()
 const dialogConfig = ref({
     show: false,
@@ -64,6 +66,8 @@ const submitApply = async () => {
             message: "加入成功",
             type: "success",
         })
+        contactStore.setContactReload(formData.value.contactType)
+
     }else if (res.code === 0 && res.data === 1) {
         ElMessage({
             message: "申请成功，等待对方同意",
