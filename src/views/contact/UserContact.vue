@@ -14,17 +14,19 @@
                     <div class="part-tile">{{ item.partName }}</div>
                     <div class="part-list">
                         <div
-                                v-for="(sub,index) in item.children" :key="index"
-                                :class="['part-item',sub.path == route.path ? 'active' : '']"
-                                @click="partJump(sub)"
+                            v-for="(sub,index) in item.children" :key="index"
+                            :class="['part-item',sub.path == route.path ? 'active' : '']"
+                            @click="partJump(sub)"
                         >
                             <div :class="['iconfont',sub.icon]" :style="{background: sub.iconBgColor}"></div>
                             <div class="text">{{ sub.name }}</div>
                         </div>
                         <template v-for="(contact,index) in item.contactData" :key='index'>
-                            <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']" @click="contactDetail(contact,item)">
-                                <Avatar :userId="contact[item.contactId]" width="35" height="35" borderRadius="50%" showDetail/>
-                                <div class="text">{{contact[item.contactName]}}</div>
+                            <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']"
+                                 @click="contactDetail(contact,item)">
+                                <Avatar :userId="contact[item.contactId]" width="35" height="35" borderRadius="50%"
+                                        showDetail/>
+                                <div class="text">{{ contact[item.contactName] }}</div>
                             </div>
                         </template>
                         <template v-if="item.contactData && item.contactData.length == 0">
@@ -47,13 +49,14 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {onMounted, ref,watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
-import {UserContactControllerService} from "../../../generated";
+import {GroupInfoControllerService, UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import Avatar from "@/components/Avatar.vue";
 
 import {ContactSateStore} from "@/stores/ContactStateStore";
+import {ElMessage} from "element-plus";
 
 const contactStore = ContactSateStore();
 const route = useRoute();
@@ -74,8 +77,8 @@ const partList = ref([
             },
             {
                 name: '新的朋友',
-                icon: 'icon-add',
-                iconBgColor: '#fa9d3b',
+                icon: 'icon-plane',
+                iconBgColor: '#08bf61',
                 path: '/contact/add',
                 showTitle: true,
                 countKey: 'contactApplyCount'
@@ -128,6 +131,7 @@ const partJump = (data: any) => {
         rightTile.value = null
     }
     //todo 处理联系人好友申请一读
+    console.log(data)
     router.push(data.path)
 }
 
@@ -148,8 +152,17 @@ const loadContact = async (contactType: String) => {
     }
 }
 
-watch(() => contactStore.contactReload,(newVal,oldValue) =>{
-    if (!newVal){
+const loadMyGroup = async () => {
+    const result = await GroupInfoControllerService.loadMyGroupUsingPost1()
+    if (result.code === 0) {
+        partList.value[1].contactData = result.data;
+    } else {
+        ElMessage.error(result.message)
+    }
+}
+
+watch(() => contactStore.contactReload, (newVal, oldValue) => {
+    if (!newVal) {
         return;
     }
     switch (newVal) {
@@ -157,11 +170,15 @@ watch(() => contactStore.contactReload,(newVal,oldValue) =>{
         case "GROUP":
             loadContact(newVal)
             break;
+        case "MY":
+            loadMyGroup()
+            break;
     }
-},{immediate: true, deep: true})
+}, {immediate: true, deep: true})
 onMounted(() => {
     loadContact('GROUP')
     loadContact('USER')
+    loadMyGroup()
 })
 </script>
 
@@ -176,6 +193,7 @@ onMounted(() => {
     background: #F7F7F7;
     display: flex;
     align-items: center;
+
     .iconfont {
         font-size: 12px;
     }
@@ -185,6 +203,7 @@ onMounted(() => {
     border-top: 1px solid #ddd;
     height: calc(100vh - 70px);
     overflow: hidden;
+
     &:hover {
         overflow: auto;
     }
@@ -194,18 +213,22 @@ onMounted(() => {
         padding-left: 5px;
         margin-top: 10px;
     }
+
     .part-list {
         border-bottom: 1px solid #d6d6d6;
+
         .part-item {
             display: flex;
             align-items: center;
             padding: 10px 10px;
             position: relative;
+
             &:hover {
                 cursor: pointer;
                 background: #d6d6d7;
             }
         }
+
         .iconfont {
             width: 35px;
             height: 35px;
@@ -215,6 +238,7 @@ onMounted(() => {
             font-size: 20px;
             color: #fff;
         }
+
         .text {
             flex: 1;
             color: #000000;
@@ -223,20 +247,24 @@ onMounted(() => {
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         .no-data {
             text-align: center;
             font-size: 12px;
             color: #9d9d9d;
             line-height: 30px;
         }
+
         .active {
             background: #c4c4c4;
+
             &:hover {
                 background: #c4c4c4;
             }
         }
     }
 }
+
 .title-panel {
     width: 100%;
     height: 60px;

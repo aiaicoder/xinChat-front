@@ -32,8 +32,9 @@ function startLoading() {
     // loading最少显示时间（为了防止当请求立马响应页面会闪一下的情况）
     return new Promise((resolve) => {
         setTimeout(() => {
+            // @ts-ignore
             resolve();
-        }, 300);
+        }, 200);
     });
 }
 
@@ -63,7 +64,6 @@ const tryHideFullScreenLoading = debounce(() => {
 
 axios.interceptors.request.use(
     function (config) {
-        showFullScreenLoading();
         console.log("进入请求拦截器");
         console.log("xinChat-token", localStorage.getItem("xinChat-token"));
         //校验token是否过期
@@ -75,8 +75,6 @@ axios.interceptors.request.use(
         return config;
     },
     function (error) {
-        // 对请求错误做些什么
-        showFullScreenLoading();
         return Promise.reject(error);
     }
 );
@@ -99,13 +97,11 @@ axios.interceptors.response.use(
         if (responseType === "blob" || responseType === "arraybuffer") {
             return responseData;
         }
-        tryHideFullScreenLoading();
         return response;
     },
     function (error) {
         // 超出 2xx 范围的状态码都会触发该函数。
         // 对响应错误做点什么
-        tryHideFullScreenLoading();
         return Promise.reject(error.message);
     }
 );

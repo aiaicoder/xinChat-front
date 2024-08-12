@@ -1,9 +1,11 @@
 import type {RouteRecordRaw} from "vue-router";
 // @ts-ignore
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
-
-
 // @ts-ignore
+import GroupEdite1 from "@/views/contact/GroupEdite1.vue";
+// @ts-ignore
+import GroupEdit from "@/views/contact/GroupEdit.vue";
+
 
 export const routes: Array<RouteRecordRaw> = [
     {
@@ -41,7 +43,14 @@ export const routes: Array<RouteRecordRaw> = [
                         name: "搜索",
                         // @ts-ignore
                         component: () => import("@/views/contact/Search.vue"),
+                    },
+                    {
+                        path: "/contact/createGroup",
+                        name: "新建群聊",
+                        // @ts-ignore
+                        component: GroupEdit
                     }
+
                 ],
                 meta: {
                     icon: "UserFilled",
@@ -76,7 +85,6 @@ export const routes: Array<RouteRecordRaw> = [
         },
 
     },
-
     {
         path: "/user/login",
         name: "用户登录",
@@ -87,6 +95,7 @@ export const routes: Array<RouteRecordRaw> = [
             access: ACCESS_ENUM.UnLogin,
         },
     },
+
 
 
 ];

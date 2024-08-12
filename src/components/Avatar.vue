@@ -30,7 +30,7 @@
           <template #default>
               <UserBaseInfo :user-info="userInfo"></UserBaseInfo>
               <div class="op-btn" v-if="userId != loginUse.loginUser.id">
-                  <el-button v-if="userId.contactStatus == 1" type="primary" @click="sendMessage">发送消息</el-button>
+                  <el-button v-if="userInfo.contactStatus == 1" type="primary" @click="sendMessage">发送消息</el-button>
                   <el-button v-else type="primary" @click="addContact">加为好友</el-button>
               </div>
           </template>

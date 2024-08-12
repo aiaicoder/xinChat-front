@@ -50,10 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-    ChatDotRound, Edit,
-    SwitchButton, Tools, User,
-} from '@element-plus/icons-vue'
+import {Edit, SwitchButton} from '@element-plus/icons-vue'
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";

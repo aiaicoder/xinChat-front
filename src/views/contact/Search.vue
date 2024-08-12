@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import ContentPanel from "@/components/ContentPanel.vue";
-import {computed,ref, watch} from "vue";
+import {computed,ref} from "vue";
 import {ElMessage} from "element-plus";
 import {UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
