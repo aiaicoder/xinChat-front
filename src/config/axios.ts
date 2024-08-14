@@ -70,7 +70,6 @@ axios.interceptors.request.use(
         if (localStorage.getItem("xinChat-token")) {
             config.headers["xinChat-token"] = localStorage.getItem("xinChat-token");
         }
-
         // 在发送请求之前做些什么
         return config;
     },

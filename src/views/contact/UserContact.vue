@@ -79,7 +79,7 @@ const partList = ref([
                 name: '新的朋友',
                 icon: 'icon-plane',
                 iconBgColor: '#08bf61',
-                path: '/contact/add',
+                path: '/contact/contactNotice',
                 showTitle: true,
                 countKey: 'contactApplyCount'
             }

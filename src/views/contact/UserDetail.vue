@@ -164,9 +164,4 @@ watch(() => route.query.contactId, (newVal, oldVal) => {
     }
 }
 
-.userDetail {
-    width: 100vw;
-    height: 100vh;
-    border-top: 1px solid rgb(221, 221, 221);
-}
 </style>

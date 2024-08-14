@@ -19,17 +19,11 @@
                                 <el-avatar :size="50" :src="loginStore.loginUser.userAvatar"></el-avatar>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item>
+                                        <el-dropdown-item @click="toSetting">
                                             <el-icon>
                                                 <Edit/>
                                             </el-icon>
-                                            <span>修改信息</span>
-                                        </el-dropdown-item>
-                                        <el-dropdown-item @click="logout">
-                                            <el-icon>
-                                                <SwitchButton/>
-                                            </el-icon>
-                                            <span>退出登录</span>
+                                            <span>设置</span>
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>

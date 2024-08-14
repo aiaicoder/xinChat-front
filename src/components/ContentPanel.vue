@@ -20,7 +20,6 @@ const props = defineProps({
   width: calc(100vw);
   overflow: auto;
   height: calc(100vh - 62px);
-
   .content-inner {
     margin: 0 25%;
     width: 400px;

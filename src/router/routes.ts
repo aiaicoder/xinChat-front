@@ -61,7 +61,14 @@ export const routes: Array<RouteRecordRaw> = [
                         name: "群聊详情",
                         // @ts-ignore
                         component: () => import("@/views/contact/GroupDetail.vue"),
+                    },
+                    {
+                        path: "/contact/contactNotice",
+                        name: "新的朋友",
+                        // @ts-ignore
+                        component: () => import("@/views/contact/ContactApply.vue"),
                     }
+
 
                 ],
                 meta: {
@@ -80,10 +87,10 @@ export const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "/userInfo",
+                path: "/setting",
                 name: "用户信息",
                 // @ts-ignore
-                component: () => import("@/views/userInfo/UserCenter.vue"),
+                component: () => import("@/views/userInfo/Setting.vue"),
                 meta: {
                     hideInMenu: true,
                     access: ACCESS_ENUM.User,

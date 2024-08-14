@@ -127,7 +127,7 @@ const checkCodeUrl = ref()
 const checkCodeKey = ref()
 //获取验证码
 const getCheckCode = async () => {
-    const result = await UserControllerService.checkCodeUsingGet()
+    const result = await UserControllerService.checkCodeUsingGet1()
     if (result.code == 0) {
         checkCodeUrl.value = result.data.checkCode;
         checkCodeKey.value = result.data.checkCodeKey;
@@ -178,11 +178,8 @@ const rules = reactive({
 
 //用户注册
 const register = async () => {
-    const res = await UserControllerService.userRegisterUsingPost(formData)
+    const res = await UserControllerService.userRegisterUsingPost1(formData)
     if (res.code == 0) {
-        if (res.data?.token) {
-            localStorage.setItem("xinChat-token", res.data.token);
-        }
         ElMessage({
             message: "注册成功，赶快去登录吧",
             type: 'success',
@@ -199,18 +196,16 @@ const register = async () => {
 
 //用户登录
 const login = async () => {
-    const res = await UserControllerService.userLoginUsingPost(formData)
+    const res = await UserControllerService.userLoginUsingPost1(formData)
     if (res.code == 0) {
         if (res.data?.token) {
-            const expiration = Date.now() + 7 * 1000; // 过期时间戳
             localStorage.setItem('xinChat-token', res.data.token);
-            localStorage.setItem('xinChat-token-expiration', String(expiration));
         }
         ElMessage({
             message: "登录成功",
             type: 'success',
         })
-        await router.push("/")
+        router.push("/")
     } else {
         ElMessage({
             message: res.message,
@@ -221,7 +216,7 @@ const login = async () => {
 
 //重置密码
 const resetPassword = async () => {
-    const res = await UserControllerService.resetPasswordUsingPost(formData);
+    const res = await UserControllerService.resetPasswordUsingPost1(formData);
     if (res.code === 0) {
         ElMessage({
             message: "重置密码成功",
