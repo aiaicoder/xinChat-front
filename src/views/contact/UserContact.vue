@@ -54,9 +54,9 @@ import {useRoute, useRouter} from "vue-router";
 import {GroupInfoControllerService, UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import Avatar from "@/components/Avatar.vue";
-
-import {ContactSateStore} from "@/stores/ContactStateStore";
 import {ElMessage} from "element-plus";
+import {ContactSateStore} from "@/stores/ContactStateStore";
+
 
 const contactStore = ContactSateStore();
 const route = useRoute();
@@ -134,6 +134,19 @@ const partJump = (data: any) => {
     console.log(data)
     router.push(data.path)
 }
+const contactDetail = (contact: any, part: any) => {
+    if (part.showTitle){
+        rightTile.value = contact[part.contactName]
+    }else {
+        rightTile.value = null
+    }
+    router.push({
+        path: part.contactPath,
+        query: {
+            contactId: contact[part.contactId]
+        }
+    })
+}
 
 const loadContact = async (contactType: String) => {
     const loadUserContact = {
@@ -173,6 +186,21 @@ watch(() => contactStore.contactReload, (newVal, oldValue) => {
         case "MY":
             loadMyGroup()
             break;
+        case "DISSOLUTION_GROUP":
+            loadMyGroup()
+            router.push("/contact/blank")
+            rightTile.value = null
+            break;
+        case "LEAVE_GROUP":
+            loadContact("GROUP")
+            router.push("/contact/blank")
+            rightTile.value = null
+            break;
+        case "REMOVE_USER":
+            loadContact('USER')
+            router.push("/contact/blank")
+            rightTile.value = null
+            break;
     }
 }, {immediate: true, deep: true})
 onMounted(() => {
@@ -203,7 +231,6 @@ onMounted(() => {
     border-top: 1px solid #ddd;
     height: calc(100vh - 70px);
     overflow: hidden;
-
     &:hover {
         overflow: auto;
     }

@@ -48,7 +48,19 @@ export const routes: Array<RouteRecordRaw> = [
                         path: "/contact/createGroup",
                         name: "新建群聊",
                         // @ts-ignore
-                        component: GroupEdit
+                        component: () => import("@/views/contact/GroupEdit.vue"),
+                    },
+                    {
+                        path: "/contact/userDetail",
+                        name: "用户详情",
+                        // @ts-ignore
+                        component: () => import("@/views/contact/UserDetail.vue"),
+                    },
+                    {
+                        path: "/contact/GroupDetail",
+                        name: "群聊详情",
+                        // @ts-ignore
+                        component: () => import("@/views/contact/GroupDetail.vue"),
                     }
 
                 ],

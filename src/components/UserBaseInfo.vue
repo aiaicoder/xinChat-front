@@ -7,7 +7,7 @@
         </AvatarBase>
         <div class="user-info">
             <div class="nick-name">
-                {{userInfo.nickName}}
+                {{userInfo.userName}}
                 <span v-if="userInfo.sex === 0" class="iconfont icon-woman"></span>
                 <span v-if="userInfo.sex === 1" class="iconfont icon-man"></span>
             </div>
