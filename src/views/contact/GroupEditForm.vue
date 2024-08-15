@@ -19,7 +19,7 @@
             </el-form-item>
             <el-form-item label="封面" prop="avatarFile">
                 <AvatarUpload
-                        v-model="formData.groupAvatar"
+                        :mode-value="formData.groupAvatar"
                         ref="avatarUploadRef"
                         @coverFile="getPicUrl"
                 >

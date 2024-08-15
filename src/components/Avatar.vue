@@ -1,7 +1,7 @@
 <template>
     <div>
         <AvatarBase
-                :user-id="userId"
+                :avatar="avatar"
                 :width="width"
                 :border-radius="borderRadius"
                 :show-detail="showDetail"
@@ -20,7 +20,7 @@
         >
             <template #reference>
                 <AvatarBase
-                        :user-id="userId"
+                        :avatar="avatar"
                         :width="width"
                         :border-radius="borderRadius"
                         :show-detail="false"
@@ -62,6 +62,10 @@ const props = defineProps({
     showDetail: {
         type: Boolean,
         default: false
+    },
+    avatar:{
+        type: String,
+        default: ''
     }
 })
 

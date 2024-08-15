@@ -77,6 +77,31 @@ export const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
+                path: "/setting",
+                name: "用户信息",
+                redirect:"/setting/userInfo",
+                // @ts-ignore
+                component: () => import("@/views/Setting/Setting.vue"),
+                children:[
+                    {
+                        path: "/setting/userInfo",
+                        name: "用户设置",
+                        // @ts-ignore
+                        component: () => import("@/views/Setting/UserInfo.vue"),
+                    },
+                    {
+                        path: "/setting/about",
+                        name: "关于",
+                        // @ts-ignore
+                        component: () => import("@/views/Setting/About.vue"),
+                    }
+                ],
+                meta: {
+                    hideInMenu: true,
+                    access: ACCESS_ENUM.User,
+                },
+            },
+            {
                 path: "/Regulate",
                 name: "管理",
                 // @ts-ignore
@@ -84,16 +109,6 @@ export const routes: Array<RouteRecordRaw> = [
                 meta: {
                     access: ACCESS_ENUM.Admin,
                     icon: "Operation",
-                },
-            },
-            {
-                path: "/setting",
-                name: "用户信息",
-                // @ts-ignore
-                component: () => import("@/views/userInfo/Setting.vue"),
-                meta: {
-                    hideInMenu: true,
-                    access: ACCESS_ENUM.User,
                 },
             },
         ],

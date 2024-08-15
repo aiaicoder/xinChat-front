@@ -1,18 +1,18 @@
 <template>
     <div class="user-panel">
-        <AvatarBase :user-id="userInfo.id || userInfo.contactId"
+        <AvatarBase :avatar="userInfo.userAvatar"
                     :width="60"
                     :border-radius="5"
                     :show-detail="true">
         </AvatarBase>
         <div class="user-info">
             <div class="nick-name">
-                {{userInfo.userName}}
+                {{ userInfo.userName }}
                 <span v-if="userInfo.sex === 0" class="iconfont icon-woman"></span>
                 <span v-if="userInfo.sex === 1" class="iconfont icon-man"></span>
             </div>
-            <div class="info">ID: {{userInfo.id || userInfo.contactId}}</div>
-            <div class="info" v-if="showArea">地区：{{Utils.getAreaInfo(userInfo.areaName)}}</div>
+            <div class="info">ID: {{ userInfo.id || userInfo.contactId }}</div>
+            <div class="info" v-if="showArea">地区：{{ Utils.getAreaInfo(userInfo.areaName) }}</div>
         </div>
     </div>
 </template>
@@ -33,12 +33,17 @@ const props = defineProps({
         default: true
     }
 })
+const showDetailHandler = () => {
+    console.log(props.userInfo,"aaa")
+}
+showDetailHandler()
 </script>
 
 <style scoped>
 .user-panel {
     display: flex;
     padding-bottom: 20px;
+
     .user-info {
         flex: 1;
         margin-left: 10px;

@@ -11,7 +11,7 @@
                         <el-menu-item v-for="subItem in showSubRoutes" :key="subItem.path" :index="subItem.path"
                                       @click="highLight(subItem.path)">
                             <el-icon>
-                               <Component :is="subItem.meta.icon"></Component>
+                                <Component :is="subItem.meta.icon"></Component>
                             </el-icon>
                         </el-menu-item>
                         <div class="user-info">
@@ -50,13 +50,16 @@ import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {ElMessage} from "element-plus";
+import router from "@/router";
 
 const loginStore = useLoginUserStore()
 const activeIndex = ref('/chat')
 const highLight = (path) => {
     activeIndex.value = path
 }
-
+const toSetting = () => {
+    router.push('/setting')
+}
 //过滤子路由
 const showSubRoutes = computed(() => {
     return showRoutes.value.flatMap(route => route.children || []);

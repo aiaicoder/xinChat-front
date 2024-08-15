@@ -6,7 +6,7 @@
 
                 </el-image>
                 <ShowImage
-                        :file-id="props.modeValue"
+                        :avatar="picUrl"
                         part-type="avatar"
                         :width="40"
                         v-else
@@ -44,8 +44,7 @@ import ShowImage from "@/components/ShowImage.vue";
 import {ref} from "vue";
 import {FileControllerService} from "../../generated";
 
-const preview = ref(true)
-const picUrl = ref('')
+const preview = ref(false)
 const emit = defineEmits(['coverFile'])
 const props = defineProps({
     modeValue: {
@@ -53,14 +52,17 @@ const props = defineProps({
         default: null
     }
 })
+const picUrl = ref('')
+if (props.modeValue) {
+    picUrl.value = props.modeValue
+}
+
 const uploadImage = async (file) => {
     const res = await FileControllerService.uploadAvatarUsingPost(file.file, "user_avatar")
     if (res.code === 0) {
-        preview.value = false
         picUrl.value = res.data
         emit("coverFile", res.data)
     }
-
 }
 </script>
 

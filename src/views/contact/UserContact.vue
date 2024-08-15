@@ -24,7 +24,7 @@
                         <template v-for="(contact,index) in item.contactData" :key='index'>
                             <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']"
                                  @click="contactDetail(contact,item)">
-                                <Avatar :userId="contact[item.contactId]" width="35" height="35" borderRadius="50%"
+                                <Avatar :avatar="contact[item.avatar]" width="35" height="35" borderRadius="50%"
                                         showDetail/>
                                 <div class="text">{{ contact[item.contactName] }}</div>
                             </div>
@@ -95,6 +95,8 @@ const partList = ref([
                 path: '/contact/createGroup',
             }
         ],
+        //根据后端返回的字段进行展示
+        avatar: 'groupAvatar',
         contactId: 'groupId',
         contactName: 'groupName',
         showTitle: true,
@@ -102,6 +104,7 @@ const partList = ref([
         contactPath: '/contact/groupDetail'
     },
     {
+        avatar: 'avatar',
         partName: '我的加入的群聊',
         contactId: 'contactId',
         contactName: 'contactName',
@@ -111,6 +114,7 @@ const partList = ref([
         emptyMsg: '暂无群聊',
     },
     {
+        avatar: 'avatar',
         partName: '我的好友',
         children: [],
         contactId: 'contactId',
@@ -160,8 +164,10 @@ const loadContact = async (contactType: String) => {
 
     if (contactType === 'GROUP') {
         partList.value[2].contactData = result.data.records;
+        console.log(partList.value[2].contactData,"a222")
     } else if (contactType === 'USER') {
         partList.value[3].contactData = result.data.records;
+        console.log(partList.value[3].contactData,"bvbbb")
     }
 }
 

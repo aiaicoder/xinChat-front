@@ -2,7 +2,7 @@
     <div class="userAvatar" @click="showDetailHandler"
          :style="{width:width + 'px',height: width + 'px','border-radius':borderRadius + 'px'}"
     >
-        <showImage :width="width" :fileId="userId" partType="avatar" :force-get="true"></showImage>
+        <showImage :width="width" :avatar="avatar" partType="avatar" :force-get="true"></showImage>
     </div>
 </template>
 
@@ -24,6 +24,10 @@ const props = defineProps({
     showDetail: {
         type: Boolean,
         default: false
+    },
+    avatar:{
+        type: String,
+        default: ''
     }
 })
 const showDetailHandler = () => {

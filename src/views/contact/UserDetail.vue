@@ -114,7 +114,7 @@ watch(() => route.query.contactId, (newVal, oldVal) => {
         right: 0;
         top: 20px;
 
-        .icon-morn {
+        .icon-more {
             color: #9e9e9e;
 
             &:hover {
@@ -128,8 +128,7 @@ watch(() => route.query.contactId, (newVal, oldVal) => {
     display: flex;
     border-bottom: 1px solid #eaeaea;
     padding: 20px 0;
-
-    .part-tile {
+    .part-title {
         width: 60px;
         color: #9e9e9e;
     }

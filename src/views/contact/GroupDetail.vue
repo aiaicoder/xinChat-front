@@ -3,13 +3,13 @@
         <div class="group-info-item">
             <div class="group-title">群封面：</div>
             <div class="group-value">
-                <Avatar :user-id="groupInfo.groupId"></Avatar>
+                <Avatar :avatar="groupInfo.groupAvatar"></Avatar>
             </div>
             <div class="more-op">
                 <el-dropdown placement="bottom-end" trigger="click">
-                    <span class="el-dropdown-link">
-                        <div class="iconfont icon-more"></div>
-                    </span>
+                    <div class="el-dropdown-link">
+                        <span class="iconfont icon-more"></span>
+                    </div>
                     <template #dropdown>
                         <el-dropdown-menu v-if="groupInfo.groupOwnerId == loginUse.loginUser.id">
                             <el-dropdown-item @click="editGroupInfo">修改群信息</el-dropdown-item>

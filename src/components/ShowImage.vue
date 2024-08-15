@@ -16,8 +16,8 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-    userUrl:{
-        type:[String,Number]
+    avatar:{
+        type:[String]
     },
     fileId:{
         type:[String,Number]
@@ -36,10 +36,10 @@ const props = defineProps({
     }
 })
 const serverUrl = computed(() =>{
-    if (!props.fileId){
+    if (!props.avatar){
         return;
     }
-    return "";
+    return props.avatar;
     //todo 获取线上图片的url
 })
 
