@@ -75,7 +75,7 @@ const getContactInfo = async () => {
     if (loginUse.loginUser.id == props.userId) {
         userInfo.value = loginUse.loginUser
     } else {
-        if (userInfo.value.id.toString().startsWith("G")){
+        if (userInfo.value.id.startsWith("G")){
             return
         }
         const res = await UserContactControllerService.getContactInfoUsingGet1(props.userId)

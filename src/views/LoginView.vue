@@ -107,7 +107,7 @@ import {getCurrentInstance, onMounted, reactive, ref} from 'vue'
 import {UserControllerService} from "../../generated";
 import {ElMessage, FormInstance} from 'element-plus'
 import router from "@/router";
-
+import wsClient from "@/webSocket/wsClient"
 //获取组件的代理对象
 const {proxy} = getCurrentInstance()
 const ruleFormRef = ref<FormInstance>()
@@ -156,7 +156,6 @@ const formData = reactive({
 //密码校验
 const checkResetPassword = (rule, value, callback) => {
     if (value != formData.password) {
-        console.log(formData.password)
         callback(new Error('两次输入的密码不一致'))
     } else {
         callback()
@@ -200,6 +199,7 @@ const login = async () => {
     if (res.code == 0) {
         if (res.data?.token) {
             localStorage.setItem('xinChat-token', res.data.token);
+            wsClient.initWs({token: res.data.token})
         }
         ElMessage({
             message: "登录成功",

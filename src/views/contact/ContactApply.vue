@@ -7,7 +7,7 @@
                 <div :class="['contact-type',item.contactType === 0 ? 'user-contact' : '']">
                     {{ item.contactType === 0 ? '用户' : '群聊' }}
                 </div>
-                <Avatar :width="50" :user-id="item.applyUserId"></Avatar>
+                <Avatar :width="50" :user-id="item.applyUserId"  :avatar="item.avatar"></Avatar>
                 <div class="contact-info">
                     <div class="nick-name">{{ item.contactName }}</div>
                     <div class="apply-info">{{ item.applyInfo }}</div>

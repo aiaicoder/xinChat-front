@@ -36,7 +36,7 @@ const props = defineProps({
 const showDetailHandler = () => {
     console.log(props.userInfo,"aaa")
 }
-showDetailHandler()
+    showDetailHandler()
 </script>
 
 <style scoped>

@@ -3,10 +3,12 @@ import {defineStore} from 'pinia'
 // @ts-ignore
 import {UserControllerService} from "../../generated";
 import Access_Enum from "@/access/ACCESS_ENUM";
+import wsClient from "@/webSocket/wsClient";
+import {useRouter} from "vue-router";
 
 
 export const useLoginUserStore = defineStore('loginUser', () => {
-
+    const router = useRouter()
     const loginUser = ref({
         id: "",
         userName: "未登录",
@@ -15,6 +17,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
         sex: "",
         userProfile: "",
         createTime: "",
+        token: "",
     })
 
     async function fetchLoginUser() {
@@ -34,6 +37,8 @@ export const useLoginUserStore = defineStore('loginUser', () => {
                 ...loginUser,
                 userRole: Access_Enum.UnLogin,
             })
+            wsClient.closeWs()
+            router.push("/user/login")
         }
     }
 

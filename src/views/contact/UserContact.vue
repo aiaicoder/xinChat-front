@@ -24,7 +24,7 @@
                         <template v-for="(contact,index) in item.contactData" :key='index'>
                             <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']"
                                  @click="contactDetail(contact,item)">
-                                <Avatar :avatar="contact[item.avatar]" width="35" height="35" borderRadius="50%"
+                                <Avatar :avatar="contact[item.avatar]" :user-id="contact[item.contactId]" width="35" height="35" borderRadius="50%"
                                         showDetail/>
                                 <div class="text">{{ contact[item.contactName] }}</div>
                             </div>

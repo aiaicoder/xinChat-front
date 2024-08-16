@@ -32,6 +32,9 @@
         <div v-if="showType == 1">
             <UserInfoEdit :data="useLogin.loginUser" @emitBack="emitBack"></UserInfoEdit>
         </div>
+        <div v-if="showType == 2">
+            <UserInfoPassword @emitBack="emitBack"></UserInfoPassword>
+        </div>
     </content-panel>
 </template>
 
@@ -43,6 +46,7 @@ import {getCurrentInstance, ref} from "vue";
 import UserBaseInfo from "@/components/UserBaseInfo.vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import UserInfoEdit from "@/views/Setting/UserInfoEdit.vue";
+import UserInfoPassword from "@/views/Setting/UserInfoPassword.vue";
 
 const useLogin = useLoginUserStore()
 const contactStore = ContactSateStore();
