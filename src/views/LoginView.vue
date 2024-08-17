@@ -108,6 +108,7 @@ import {UserControllerService} from "../../generated";
 import {ElMessage, FormInstance} from 'element-plus'
 import router from "@/router";
 import wsClient from "@/webSocket/wsClient"
+import UserSettingModel from "@/db/UserSettingModel";
 //获取组件的代理对象
 const {proxy} = getCurrentInstance()
 const ruleFormRef = ref<FormInstance>()
@@ -200,6 +201,7 @@ const login = async () => {
         if (res.data?.token) {
             localStorage.setItem('xinChat-token', res.data.token);
             wsClient.initWs({token: res.data.token})
+            await UserSettingModel.saveUserSetting({userId: res.data.id, email: res.data.email})
         }
         ElMessage({
             message: "登录成功",

@@ -33,10 +33,6 @@ const props = defineProps({
         default: true
     }
 })
-const showDetailHandler = () => {
-    console.log(props.userInfo,"aaa")
-}
-    showDetailHandler()
 </script>
 
 <style scoped>

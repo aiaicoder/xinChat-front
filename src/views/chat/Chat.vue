@@ -9,12 +9,94 @@
                     </template>
                 </el-input>
             </div>
+            <div class="chat-session-list">
+                <template v-for="item in chatSessionList" :key="item.userId">
+                    <ChatSession :data="item" @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
+                </template>
+            </div>
         </template>
     </layout>
 </template>
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
+import {getCurrentInstance, onMounted, ref, watch} from "vue";
+import {useChatStore} from "@/stores/UseChatStore";
+import ChatSessionModel from "@/db/ChatSessionModel";
+import ChatSession from "@/views/chat/ChatSession.vue";
+import ContextMenu from "@imengyu/vue3-context-menu";
+
+const {proxy} = getCurrentInstance()
+const searchKey = ref("");
+const search = () => {
+}
+const useChat = useChatStore()
+const chatSessionList = ref([])
+const onLoadSessionData = () => {
+    const result = ChatSessionModel.getAllSessions()
+    result.then((res) => {
+        chatSessionList.value = res
+        console.log("chatSessionList", chatSessionList.value)
+    })
+}
+onMounted(() => {
+    onLoadSessionData()
+})
+
+const setTop = (item) => {
+    if (item.topType == 0) {
+        item.topType = 1
+    } else {
+        item.topType = 0
+    }
+    ChatSessionModel.update(item)
+    onLoadSessionData()
+}
+const deleteSession = (item) => {
+    item.status = 0;
+    ChatSessionModel.update(item)
+    onLoadSessionData()
+}
+//右键
+const oncontextmenu = (item, e) => {
+    e.preventDefault(); // 阻止浏览器的默认行为
+    e.stopPropagation(); // 阻止冒泡
+    ContextMenu.showContextMenu({
+        x: e.x,
+        y: e.y,
+        items: [
+            {
+                label: item.topType == 0 ? '置顶' : '取消置顶',
+                onClick: () => {
+                    setTop(item)
+                }
+            },
+            {
+                label: '删除聊天',
+                onClick: () => {
+                    proxy.Confirm(
+                        {
+                            message: `确定删除该聊天【${item.contactName}】吗？`,
+                            okfun: () => {
+                                deleteSession(item)
+                            }
+                        }
+                    )
+                }
+            },
+        ]
+    })
+}
+// watch(useChat.messageType, (newVal, oldVal) =>{
+//     console.log(oldVal,"监听消息状态")
+//     if (newVal == 0){
+//         onLoadSessionData()
+//         console.log("chatSessionList", chatSessionList.value)
+//     }
+// },{
+//     deep: true,
+//     immediate: true
+// })
 </script>
 
 <style scoped>

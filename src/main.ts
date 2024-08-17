@@ -13,13 +13,16 @@ import "@/access/index";
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import Verify from "@/utils/Verify";
 import Confirm from "@/utils/Confirm";
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue3-context-menu'
+
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 app.use(createPinia()).use(router).use(ElementPlus, {
     locale: zhCn,
-})
+}).use(ContextMenu)
 
 //自定义全局组件
 app.config.globalProperties.Verify = Verify

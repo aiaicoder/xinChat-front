@@ -27,7 +27,6 @@ export default {
         verify(rule, value, regs.phone, callback)
     },
     password: (rule: any, value: any, callback: any) => {
-        console.log(value)
         verify(rule, value, regs.password, callback)
     },
     nickname: (rule: any, value: any, callback: any) => {

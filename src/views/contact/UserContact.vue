@@ -164,10 +164,8 @@ const loadContact = async (contactType: String) => {
 
     if (contactType === 'GROUP') {
         partList.value[2].contactData = result.data.records;
-        console.log(partList.value[2].contactData,"a222")
     } else if (contactType === 'USER') {
         partList.value[3].contactData = result.data.records;
-        console.log(partList.value[3].contactData,"bvbbb")
     }
 }
 
