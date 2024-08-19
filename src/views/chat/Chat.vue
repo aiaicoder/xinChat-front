@@ -11,8 +11,29 @@
             </div>
             <div class="chat-session-list">
                 <template v-for="item in chatSessionList" :key="item.userId">
-                    <ChatSession :data="item" @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
+                    <ChatSession :data="item" @click="ChatSessionClickHandle(item)" @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
                 </template>
+            </div>
+        </template>
+        <template #right-content>
+            <div class="title-panel" v-if="Object.keys(currentChatSession).length > 0">
+                <div class="title">
+                    <span>{{currentChatSession.contactName}}</span>
+                    <span v-if="currentChatSession.contactType == 1">
+                        ({{currentChatSession.memberCount}})
+                    </span>
+                </div>
+            </div>
+            <div v-if="currentChatSession.contactType ==1" class="iconfont icon-more" @click="showGroupDetail">
+
+            </div>
+            <div class="chat-panel" v-show="Object.keys(currentChatSession).length > 0">
+                <div class="message-panel">
+                    <div class="message-item" v-for="(data,index) in messageList" :id="'message' + data.messageId" :key="index">
+                        {{data.messageContent}}
+                    </div>
+                </div>
+                <MessageSend :currentChatSession="currentChatSession"></MessageSend>
             </div>
         </template>
     </layout>
@@ -20,11 +41,13 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {getCurrentInstance, onMounted, ref, watch} from "vue";
+import {getCurrentInstance, onMounted, ref} from "vue";
 import {useChatStore} from "@/stores/UseChatStore";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import ChatSession from "@/views/chat/ChatSession.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
+import chatMessageModel from "@/db/ChatMessageModel";
+import MessageSend from "@/views/chat/MessageSend.vue";
 
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
@@ -35,14 +58,28 @@ const chatSessionList = ref([])
 const onLoadSessionData = () => {
     const result = ChatSessionModel.getAllSessions()
     result.then((res) => {
+        console.log("排序前",res)
+        sortChatSession(res)
         chatSessionList.value = res
         console.log("chatSessionList", chatSessionList.value)
     })
 }
-onMounted(() => {
-    onLoadSessionData()
-})
 
+
+//对会话进行排序
+const sortChatSession = (dataList: Object[]) => {
+    dataList.sort((a, b) => {
+        const topTypeResult = b["topType"] - a["topType"]
+        if (topTypeResult == 0) {
+            return b["lastMessageTime"] - a["lastMessageTime"]
+        }
+        return topTypeResult
+    })
+}
+
+
+
+//置顶会话
 const setTop = (item) => {
     if (item.topType == 0) {
         item.topType = 1
@@ -52,11 +89,65 @@ const setTop = (item) => {
     ChatSessionModel.update(item)
     onLoadSessionData()
 }
+
+//当前选中的会话
+const currentChatSession = ref({})
+const messageCountInfo = {
+    pageTotal: 0,
+    pageNo: 0,
+    maxMessageId: null,
+    nodata: false
+}
+
+//点击会话
+const messageList = ref([])
+
+const ChatSessionClickHandle = (item) => {
+    currentChatSession.value = Object.assign({}, item)
+    //TODO 消息记录要清空
+    messageCountInfo.pageNo = 0
+    messageCountInfo.pageTotal = 1;
+    messageCountInfo.nodata = false
+    messageList.value = []
+    loadChatMessage()
+}
+
+const loadChatMessage = () => {
+    if (messageCountInfo.nodata) {
+        return
+    }
+    messageCountInfo.pageNo++
+    chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
+        console.log(res)
+        if (res.messageCount == res.currentPage) {
+            messageCountInfo.nodata = true
+        }
+        res.messages.sort((a, b) => {
+            return a.messageId - b.messageId
+        })
+        //分页一点一点添加
+        messageList.value = messageList.value.concat(res.messages)
+        messageCountInfo.pageNo = res.currentPage;
+        messageCountInfo.pageTotal = res.messageCount;
+        if (res.currentPage == 1) {
+            messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
+        }
+    })
+}
+
+
+//删除会话
+const deleteChatSessionList = (contactId: String) => {
+    chatSessionList.value = chatSessionList.value.filter(item => item.contactId != contactId)
+}
+
 const deleteSession = (item) => {
+    deleteChatSessionList(item.contactId)
     item.status = 0;
     ChatSessionModel.update(item)
-    onLoadSessionData()
+    currentChatSession.value = {}
 }
+
 //右键
 const oncontextmenu = (item, e) => {
     e.preventDefault(); // 阻止浏览器的默认行为
@@ -68,6 +159,7 @@ const oncontextmenu = (item, e) => {
             {
                 label: item.topType == 0 ? '置顶' : '取消置顶',
                 onClick: () => {
+                    sortChatSession(chatSessionList.value)
                     setTop(item)
                 }
             },
@@ -87,6 +179,12 @@ const oncontextmenu = (item, e) => {
         ]
     })
 }
+
+onMounted(() => {
+    onLoadSessionData()
+})
+
+
 // watch(useChat.messageType, (newVal, oldVal) =>{
 //     console.log(oldVal,"监听消息状态")
 //     if (newVal == 0){
@@ -167,7 +265,7 @@ const oncontextmenu = (item, e) => {
 .chat-panel {
     border-top: 1px solid #ddd;
     background: #f5f5f5;
-
+    width: 100vw;
     .message-panel {
         padding: 10px 30px 0 30px;
         height: calc(100vh - 200px - 70px);

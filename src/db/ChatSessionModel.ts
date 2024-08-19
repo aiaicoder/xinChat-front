@@ -18,7 +18,8 @@ request.onupgradeneeded = function (event) {
         objectStore.createIndex("userContactIndex", ["userId", "contactId"], {unique: false});
     }
     if (!db.objectStoreNames.contains(messagesStoreName)) {
-        db.createObjectStore(messagesStoreName, {keyPath: "messageId", autoIncrement: false});
+        const objectStore = db.createObjectStore(messagesStoreName, {keyPath: "messageId", autoIncrement: false});
+        objectStore.createIndex("SessionIndex", "sessionId", {unique: false});
     }
     if (!db.objectStoreNames.contains(uerStoreName)) {
         db.createObjectStore(uerStoreName, {keyPath: "userId", autoIncrement: false});
@@ -179,6 +180,8 @@ async function update(item: Object): Promise<void> {
     await saveChatSession(item);
     console.log("Session updated successfully.");
 }
+
+
 
 
 export default {

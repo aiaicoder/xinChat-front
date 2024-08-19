@@ -59,6 +59,7 @@ import {GroupInfoControllerService} from "../../../generated";
 import {ElMessage} from "element-plus";
 import {ContactSateStore} from "@/stores/ContactStateStore";
 import AvatarUpload from "@/components/AvatarUpload.vue";
+import router from "@/router";
 
 const contactStore = ContactSateStore();
 const formData = ref({})
@@ -89,6 +90,7 @@ const submit = () => {
         ruleFormRef.value.resetFields()
         contactStore.setContactReload("MY")
         //todo 重新加载头像
+        router.push("/contact/blank")
     })
 }
 const getPicUrl = (url: string) => {

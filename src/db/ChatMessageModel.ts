@@ -31,16 +31,16 @@ async function saveChatMessages(message: Object[]): Promise<void> {
         const contactId = msg.contactType == 1 ? msg.contactId : msg.sendUserId;
         // @ts-ignore
         const noReadCount = chatSessionCountMap[contactId] || 0;
-        if (!noReadCount){
+        if (!noReadCount) {
             // @ts-ignore
             chatSessionCountMap[contactId] = 1;
-        }else {
+        } else {
             // @ts-ignore
             chatSessionCountMap[contactId] = noReadCount + 1;
         }
         objectStore.put(msg); // 使用 put 方法
     });
-    for (const item in chatSessionCountMap){
+    for (const item in chatSessionCountMap) {
         // @ts-ignore
         const noReadCount = chatSessionCountMap[item]
         await ChatSessionModel.updateNoReadCount(item, noReadCount);
@@ -77,8 +77,72 @@ async function getAllMessages(): Promise<Object[]> {
     });
 }
 
+
+/**
+ * 根据 sessionId 分页查询消息
+ * @param {string} sessionId - 会话ID
+ * @param {number} pageNo - 当前页数
+ * @param {number} maxMessageId - 最大消息ID
+ * @returns {Promise<{messages: Object[], currentPage: number, messageCount: number}>} - 返回消息列表、当前页数和当前页的消息数量
+ */
+async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: number): Promise<{
+    messages: Object[],
+    currentPage: number,
+    messageCount: number
+}> {
+    if (!db) {
+        throw new Error("Database is not open.");
+    }
+    const transaction = db.transaction([storeName], "readonly");
+    const objectStore = transaction.objectStore(storeName);
+    const index = objectStore.index('SessionIndex');
+
+    // 固定的 pageSize
+    const pageSize = 4; // 每页显示4条消息
+    // 计算起始位置
+    const startId = (pageNo - 1) * pageSize;
+    const endId = startId + pageSize;
+    if (!maxMessageId) {
+        maxMessageId = Number.MAX_SAFE_INTEGER;
+    }
+    return new Promise((resolve, reject) => {
+        const messages: Object[] = [];
+        let count = 0;
+        let messageCount = 0;
+
+        // 开始查询
+        const query = index.openCursor(IDBKeyRange.only(sessionId)) // 查询特定的sessionId;
+        query.onsuccess = (event) => {
+            // @ts-ignore
+            const cursor = event.target.result;
+            if (cursor) {
+                // 检查主键是否小于等于maxMessageId
+                if (cursor.primaryKey <= maxMessageId && count < endId) {
+                    if (count >= startId) {
+                        messages.push(cursor.value);
+                        messageCount++; // 增加消息计数器
+                    }
+                    count++;
+                    cursor.continue();
+                } else {
+                    // 当遍历结束或者达到 endId 或者主键超出maxMessageId时，结束遍历
+                }
+            } else {
+                resolve({messages, currentPage: pageNo, messageCount});
+            }
+        };
+
+        query.onerror = (event) => {
+            // @ts-ignore
+            reject(event.target.error);
+        };
+    });
+}
+
+
 export default {
     saveChatMessages,
     getAllMessages,
-    saveChatMessage
+    saveChatMessage,
+    getChatMessage
 }
