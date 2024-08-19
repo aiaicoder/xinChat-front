@@ -76,6 +76,17 @@ async function getAllMessages(): Promise<Object[]> {
         request.onerror = () => reject(request.error);
     });
 }
+async function getMessageById(messageId: string): Promise<Object> {
+    const transaction = db.transaction([storeName], "readonly");
+    const objectStore = transaction.objectStore(storeName);
+
+    return new Promise((resolve, reject) => {
+        const request = objectStore.get(messageId);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
 
 
 /**
@@ -86,8 +97,8 @@ async function getAllMessages(): Promise<Object[]> {
  * @returns {Promise<{messages: Object[], currentPage: number, messageCount: number}>} - 返回消息列表、当前页数和当前页的消息数量
  */
 async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: number): Promise<{
-    messages: Object[],
-    currentPage: number,
+    messages: Object[];
+    currentPage: number;
     messageCount: number
 }> {
     if (!db) {
@@ -109,23 +120,23 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
         const messages: Object[] = [];
         let count = 0;
         let messageCount = 0;
-
         // 开始查询
-        const query = index.openCursor(IDBKeyRange.only(sessionId)) // 查询特定的sessionId;
+        const query = index.openCursor(IDBKeyRange.only(sessionId),'prev'); // 查询特定的sessionId
         query.onsuccess = (event) => {
             // @ts-ignore
             const cursor = event.target.result;
             if (cursor) {
                 // 检查主键是否小于等于maxMessageId
-                if (cursor.primaryKey <= maxMessageId && count < endId) {
-                    if (count >= startId) {
+                if (cursor.primaryKey <= maxMessageId) {
+                    if (count >= startId && count < endId) {
                         messages.push(cursor.value);
                         messageCount++; // 增加消息计数器
                     }
                     count++;
                     cursor.continue();
                 } else {
-                    // 当遍历结束或者达到 endId 或者主键超出maxMessageId时，结束遍历
+                    // 当主键超出maxMessageId时，结束遍历
+                    cursor.done;
                 }
             } else {
                 resolve({messages, currentPage: pageNo, messageCount});
@@ -140,9 +151,11 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
 }
 
 
+
 export default {
     saveChatMessages,
     getAllMessages,
+    getMessageById,
     saveChatMessage,
     getChatMessage
 }

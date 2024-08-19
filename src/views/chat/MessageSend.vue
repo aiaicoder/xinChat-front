@@ -60,7 +60,7 @@
         <div class="send-btn-panel">
             <el-popover
                     trigger="click"
-                    :visible="showSendMsgPopver"
+                    :visible="showSendMsgPopover"
                     placement="top-end"
                     :teleported="false"
                     @show="openPopover"
@@ -75,23 +75,116 @@
                     <span class="empty-msg">不能发送空白消息</span>
                 </template>
                 <template #reference>
-                    <div class="send-btn" @click="sendMessage">发送(S)</div>
+                    <div class="send-btn" @click="sendMessage($event)">发送(S)</div>
                 </template>
             </el-popover>
         </div>
+        <SearchAdd ref="searchAddRef"></SearchAdd>
     </div>
 </template>
 
 <script setup lang="ts">
 import emojiList from "@/constant/emojiList";
-import {ref} from "vue";
+import {getCurrentInstance, ref} from "vue";
+
+import {ChatControllerService} from "../../../generated";
+import {useLoginUserStore} from "@/stores/UseLoginUserStore";
+import SearchAdd from "@/views/contact/SearchAdd.vue";
+import ChatMessageModel from "@/db/ChatMessageModel";
+import ChatSessionModel from "@/db/ChatSessionModel";
 
 const activeEmoji = ref('笑脸');
 const msgContent = ref(''); //消息内容
-const sendMessage = () => {
-    //发送消息
-    console.log(msgContent.value);
+const {proxy} = getCurrentInstance()
+const showEmojiPopover = ref(false);
+const showSendMsgPopover = ref(false);
+const useLogin = useLoginUserStore()
+const props = defineProps({
+    currentChatSession: {
+        type: Object,
+        default: () => {
+        }
+    },
+});
+const hidePopover = () => {
+    showEmojiPopover.value = false;
+    showSendMsgPopover.value = false;
 };
+const emit = defineEmits(['reloadMsg']);
+const sendMessage = (e) => {
+    if (e.shiftKey && e.keyCode === 13) {
+        return
+    }
+    e.preventDefault();
+    //若有值，则使用正则表达式移除字符串末尾的空白字符
+    const messageContent = msgContent.value ? msgContent.value.replace(/\s*$/g, '') : '';
+    if (messageContent == '') {
+        showSendMsgPopover.value = true;
+        setTimeout(() => {
+            showSendMsgPopover.value = false;
+        }, 1500);
+        return
+    }
+    sendMessageDo({messageContent, messageType: 2}, true)
+
+};
+
+const sendMessageDo = async (messageObj: Object = {
+    messageContent,
+    messageType,
+    localFilePath,
+    fileSize,
+    fileName,
+    filePath,
+    fileType,
+    sessionId,
+    sendUserId,
+    contactId
+}, cleanMsgContent) => {
+    //todo 判断文件大小
+    if (messageObj.fileSize == 0) {
+        proxy.Confirm({message: `${messageObj.fileName}是一个空文件无法发送,请重新选择`, showCancelButton: false,})
+        return
+    }
+    messageObj.sessionId = props.currentChatSession.sessionId;
+    messageObj.sendUserId = useLogin.loginUser.id;
+    messageObj.contactId = props.currentChatSession.contactId;
+    const res = await ChatControllerService.sendMessageUsingPost1(messageObj)
+    if (!res) {
+        return
+    }
+    if (res.code != 0) {
+        proxy.Confirm(
+            {
+                message: res.message,
+                okfun: () => {
+                    addContact(props.currentSession.contactId, res.code)
+                },
+                okText: "重新申请"
+            }
+        )
+    }
+    if (cleanMsgContent) {
+        msgContent.value = ''
+    }
+    Object.assign(messageObj, res.data)
+    messageObj.lastReceiveTime = messageObj.sendTime
+    // 会话更新列表
+    await ChatSessionModel.update(messageObj, props.currentChatSession.sessionId)
+    //保存消息到本地
+    await ChatMessageModel.saveChatMessage(messageObj)
+    emit('reloadMsg',res.data.messageId)
+}
+
+
+//添加好友
+const searchAddRef = ref();
+const addContact = (contactId, code) => {
+    searchAddRef.value.show({
+        contactId,
+        contactType: code == 90003 ? "USER" : "GROUP"
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -159,13 +252,13 @@ const sendMessage = () => {
   }
 
   .send-btn-panel {
-      display: flex; // 使用 flex 布局
-      justify-content: flex-end; // 对齐到右侧
-      padding-top: 10px;
-      padding-right: 10px; // 添加右侧 padding
-      width: calc(100% - 310px); // 减去左右 padding
+    display: flex; // 使用 flex 布局
+    justify-content: flex-end; // 对齐到右侧
+    padding-top: 10px;
+    padding-right: 10px; // 添加右侧 padding
+    width: calc(100% - 310px); // 减去左右 padding
 
-      .send-btn {
+    .send-btn {
       cursor: pointer;
       color: #07c160;
       background: #e9e9e9;

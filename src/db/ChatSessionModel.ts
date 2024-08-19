@@ -162,14 +162,84 @@ async function updateNoReadCount(contactId: string, noReadCount: number): Promis
         return;
     }
     //@ts-ignore
-    session.noReadCount = noReadCount; // 更新 noReadCount
+    session.noReadCount += noReadCount; // 更新 noReadCount
+    // 保存更新后的会话
+    await saveChatSession(session);
+    console.log("Session updated successfully.");
+}
+
+async function getSessionBySessionId(sessionId: string): Promise<Object> {
+    const transaction = db.transaction(sessionsStoreName, 'readonly');
+    const objectStore = transaction.objectStore(sessionsStoreName);
+    return new Promise((resolve, reject) => {
+        const request = objectStore.get(sessionId);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+//选中session后清空未读消息
+async function clearNoReadCount(sessionId: string): Promise<void> {
+    if (!db) {
+        throw new Error("Database is not open.");
+    }
+    const session = await getSessionBySessionId(sessionId);
+    if (!session) {
+        return;
+    }
+    //@ts-ignore
+    session.noReadCount = 0; // 更新 noReadCount
     // 保存更新后的会话
     await saveChatSession(session);
     console.log("Session updated successfully.");
 }
 
 //更新会话状态
-async function update(item: Object): Promise<void> {
+async function update(item: Object, currentSessionId: string): Promise<void> {
+    if (!db) {
+        throw new Error("Database is not open.");
+    }
+    // 异步获取旧会话信息
+    //@ts-ignore
+    const oldSession = await getSessionBySessionId(item.sessionId);
+    // 检查是否获取到了会话信息
+    if (!oldSession) {
+        throw new Error("Session not found.");
+    }
+    // 更新会话信息
+    //@ts-ignore
+    if (item.lastMessage) {
+        //@ts-ignore
+        oldSession.lastMessage = item.lastMessage;
+    }
+    //@ts-ignore
+    if (item.lastMessageTime) {
+        //@ts-ignore
+        oldSession.lastMessageTime = item.lastMessageTime;
+    }
+    //@ts-ignore
+    if (item.contactName) {
+        //@ts-ignore
+        oldSession.contactName = item.contactName;
+    }
+    //@ts-ignore
+    if (item.memberCount != null) {
+        //@ts-ignore
+        oldSession.memberCount = item.memberCount;
+    }
+    // 未选中当前session增加未读消息
+    //@ts-ignore
+    if (oldSession.sessionId !== currentSessionId) {
+        //@ts-ignore
+        oldSession.noReadCount += 1;
+    }
+    // 保存更新后的会话
+    await saveChatSession(oldSession);
+    console.log("Session updated successfully.");
+}
+
+
+async function updateAll(item: Object): Promise<void> {
     if (!db) {
         throw new Error("Database is not open.");
     }
@@ -182,13 +252,13 @@ async function update(item: Object): Promise<void> {
 }
 
 
-
-
 export default {
     saveChatSessions,
     getAllSessions,
     getSessionByUserIdAndContactId,
     saveChatSession,
+    clearNoReadCount,
+    updateAll,
     update,
     updateNoReadCount
 }

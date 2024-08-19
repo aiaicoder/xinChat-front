@@ -33,7 +33,7 @@
                         {{data.messageContent}}
                     </div>
                 </div>
-                <MessageSend :currentChatSession="currentChatSession"></MessageSend>
+                <MessageSend :currentChatSession="currentChatSession" @reloadMsg="reloadMsg"></MessageSend>
             </div>
         </template>
     </layout>
@@ -58,10 +58,8 @@ const chatSessionList = ref([])
 const onLoadSessionData = () => {
     const result = ChatSessionModel.getAllSessions()
     result.then((res) => {
-        console.log("排序前",res)
         sortChatSession(res)
         chatSessionList.value = res
-        console.log("chatSessionList", chatSessionList.value)
     })
 }
 
@@ -86,7 +84,7 @@ const setTop = (item) => {
     } else {
         item.topType = 0
     }
-    ChatSessionModel.update(item)
+    ChatSessionModel.updateAll(item)
     onLoadSessionData()
 }
 
@@ -106,9 +104,11 @@ const ChatSessionClickHandle = (item) => {
     currentChatSession.value = Object.assign({}, item)
     //TODO 消息记录要清空
     messageCountInfo.pageNo = 0
-    messageCountInfo.pageTotal = 1;
+    messageCountInfo.pageTotal = 0;
     messageCountInfo.nodata = false
+    messageCountInfo.maxMessageId = null;
     messageList.value = []
+    ChatSessionModel.clearNoReadCount(currentChatSession.value.sessionId)
     loadChatMessage()
 }
 
@@ -118,7 +118,7 @@ const loadChatMessage = () => {
     }
     messageCountInfo.pageNo++
     chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
-        console.log(res)
+        console.log(res,"11111")
         if (res.messageCount == res.currentPage) {
             messageCountInfo.nodata = true
         }
@@ -132,8 +132,23 @@ const loadChatMessage = () => {
         if (res.currentPage == 1) {
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
         }
+    }).catch((err) =>{
+        console.log(err,"出错")
     })
 }
+
+const loadSendChatMessage = (messageId) => {
+    if (messageCountInfo.nodata) {
+        return
+    }
+    chatMessageModel.getMessageById(messageId).then(res => {
+        console.log(res)
+        //分页一点一点添加
+        messageList.value = messageList.value.concat(res)
+    })
+}
+
+
 
 
 //删除会话
@@ -144,7 +159,7 @@ const deleteChatSessionList = (contactId: String) => {
 const deleteSession = (item) => {
     deleteChatSessionList(item.contactId)
     item.status = 0;
-    ChatSessionModel.update(item)
+    ChatSessionModel.updateAll(item)
     currentChatSession.value = {}
 }
 
@@ -180,6 +195,10 @@ const oncontextmenu = (item, e) => {
     })
 }
 
+//发送完消息的回调
+const reloadMsg = (messageId) => {
+    loadSendChatMessage(messageId)
+}
 onMounted(() => {
     onLoadSessionData()
 })
