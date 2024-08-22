@@ -32,7 +32,6 @@ export const useLoginUserStore = defineStore('loginUser', () => {
     async function logout() {
         const res = await UserControllerService.userLogoutUsingPost1()
         if (res.code == 0) {
-            console.log("退出成功")
             setLoginUser({
                 ...loginUser,
                 userRole: Access_Enum.UnLogin,

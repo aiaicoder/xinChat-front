@@ -40,7 +40,6 @@ async function saveChatSessions(session: Object[]): Promise<void> {
     if (!db) {
         throw new Error("Database is not open.");
     }
-    console.log("执行会话的更新,批量")
     const transaction = db.transaction([sessionsStoreName], "readwrite");
     const objectStore = transaction.objectStore(sessionsStoreName);
     session.forEach((sess) => {
@@ -70,7 +69,6 @@ async function saveChatSession(session: Object): Promise<void> {
     if (!db) {
         throw new Error("Database is not open.");
     }
-    console.log("执行会话的更新，单个")
     const transaction = db.transaction([sessionsStoreName], "readwrite");
     const objectStore = transaction.objectStore(sessionsStoreName);
     if (!Reflect.has(session, 'noReadCount')) {
@@ -229,7 +227,7 @@ async function update(item: Object, currentSessionId: string): Promise<void> {
     }
     // 未选中当前session增加未读消息
     //@ts-ignore
-    if (oldSession.sessionId !== currentSessionId) {
+    if (oldSession.sessionId != currentSessionId) {
         //@ts-ignore
         oldSession.noReadCount += 1;
     }

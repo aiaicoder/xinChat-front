@@ -76,6 +76,8 @@ async function getAllMessages(): Promise<Object[]> {
         request.onerror = () => reject(request.error);
     });
 }
+
+
 async function getMessageById(messageId: string): Promise<Object> {
     const transaction = db.transaction([storeName], "readonly");
     const objectStore = transaction.objectStore(storeName);
@@ -107,7 +109,6 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
     const transaction = db.transaction([storeName], "readonly");
     const objectStore = transaction.objectStore(storeName);
     const index = objectStore.index('SessionIndex');
-
     // 固定的 pageSize
     const pageSize = 4; // 每页显示4条消息
     // 计算起始位置

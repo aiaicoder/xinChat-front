@@ -64,7 +64,6 @@ const tryHideFullScreenLoading = debounce(() => {
 
 axios.interceptors.request.use(
     function (config) {
-        console.log("进入请求拦截器");
         console.log("xinChat-token", localStorage.getItem("xinChat-token"));
         //校验token是否过期
         if (localStorage.getItem("xinChat-token")) {

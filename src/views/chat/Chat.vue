@@ -11,16 +11,17 @@
             </div>
             <div class="chat-session-list">
                 <template v-for="item in chatSessionList" :key="item.userId">
-                    <ChatSession :data="item" @click="ChatSessionClickHandle(item)" @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
+                    <ChatSession :data="item" @click="ChatSessionClickHandle(item)"
+                                 @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
                 </template>
             </div>
         </template>
         <template #right-content>
             <div class="title-panel" v-if="Object.keys(currentChatSession).length > 0">
                 <div class="title">
-                    <span>{{currentChatSession.contactName}}</span>
+                    <span>{{ currentChatSession.contactName }}</span>
                     <span v-if="currentChatSession.contactType == 1">
-                        ({{currentChatSession.memberCount}})
+                        ({{ currentChatSession.memberCount }})
                     </span>
                 </div>
             </div>
@@ -29,8 +30,9 @@
             </div>
             <div class="chat-panel" v-show="Object.keys(currentChatSession).length > 0">
                 <div class="message-panel">
-                    <div class="message-item" v-for="(data,index) in messageList" :id="'message' + data.messageId" :key="index">
-                        {{data.messageContent}}
+                    <div class="message-item" v-for="(data,index) in messageList" :id="'message' + data.messageId"
+                         :key="index">
+                        {{ data.messageContent }}
                     </div>
                 </div>
                 <MessageSend :currentChatSession="currentChatSession" @reloadMsg="reloadMsg"></MessageSend>
@@ -41,19 +43,19 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {getCurrentInstance, onMounted, ref} from "vue";
-import {useChatStore} from "@/stores/UseChatStore";
+import {getCurrentInstance, onBeforeMount, onMounted, ref} from "vue";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import ChatSession from "@/views/chat/ChatSession.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import chatMessageModel from "@/db/ChatMessageModel";
 import MessageSend from "@/views/chat/MessageSend.vue";
+import EventBus from '../../main'
 
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
 const search = () => {
 }
-const useChat = useChatStore()
+
 const chatSessionList = ref([])
 const onLoadSessionData = () => {
     const result = ChatSessionModel.getAllSessions()
@@ -74,7 +76,6 @@ const sortChatSession = (dataList: Object[]) => {
         return topTypeResult
     })
 }
-
 
 
 //置顶会话
@@ -102,13 +103,14 @@ const messageList = ref([])
 
 const ChatSessionClickHandle = (item) => {
     currentChatSession.value = Object.assign({}, item)
-    //TODO 消息记录要清空
+    //消息记录要清空
     messageCountInfo.pageNo = 0
     messageCountInfo.pageTotal = 0;
     messageCountInfo.nodata = false
     messageCountInfo.maxMessageId = null;
     messageList.value = []
     ChatSessionModel.clearNoReadCount(currentChatSession.value.sessionId)
+    localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     loadChatMessage()
 }
 
@@ -118,11 +120,12 @@ const loadChatMessage = () => {
     }
     messageCountInfo.pageNo++
     chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
-        console.log(res,"11111")
+        console.log(res, "11111")
         if (res.messageCount == res.currentPage) {
             messageCountInfo.nodata = true
         }
         res.messages.sort((a, b) => {
+            console.log("aaaa")
             return a.messageId - b.messageId
         })
         //分页一点一点添加
@@ -132,8 +135,8 @@ const loadChatMessage = () => {
         if (res.currentPage == 1) {
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
         }
-    }).catch((err) =>{
-        console.log(err,"出错")
+    }).catch((err) => {
+        console.log(err, "出错")
     })
 }
 
@@ -147,8 +150,6 @@ const loadSendChatMessage = (messageId) => {
         messageList.value = messageList.value.concat(res)
     })
 }
-
-
 
 
 //删除会话
@@ -199,21 +200,17 @@ const oncontextmenu = (item, e) => {
 const reloadMsg = (messageId) => {
     loadSendChatMessage(messageId)
 }
+
 onMounted(() => {
     onLoadSessionData()
+    localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
+    EventBus.on("reloadMessage", (messageId) => {
+        console.log('接收到事件：重新加载消息')
+        loadSendChatMessage(messageId)
+    })
 })
 
 
-// watch(useChat.messageType, (newVal, oldVal) =>{
-//     console.log(oldVal,"监听消息状态")
-//     if (newVal == 0){
-//         onLoadSessionData()
-//         console.log("chatSessionList", chatSessionList.value)
-//     }
-// },{
-//     deep: true,
-//     immediate: true
-// })
 </script>
 
 <style scoped>
@@ -285,6 +282,7 @@ onMounted(() => {
     border-top: 1px solid #ddd;
     background: #f5f5f5;
     width: 100vw;
+
     .message-panel {
         padding: 10px 30px 0 30px;
         height: calc(100vh - 200px - 70px);

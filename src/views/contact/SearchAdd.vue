@@ -62,7 +62,7 @@ const submitApply = async () => {
     const res = await UserContactControllerService.applyAddUsingPost1(formData.value)
     if (res.code === 0 && res.data === 0) {
         ElMessage({
-            message: "加入成功",
+            message: "添加成功",
             type: "success",
         })
         contactStore.setContactReload(formData.value.contactType)

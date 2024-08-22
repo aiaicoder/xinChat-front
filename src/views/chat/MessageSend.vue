@@ -110,6 +110,7 @@ const hidePopover = () => {
     showEmojiPopover.value = false;
     showSendMsgPopover.value = false;
 };
+
 const emit = defineEmits(['reloadMsg']);
 const sendMessage = (e) => {
     if (e.shiftKey && e.keyCode === 13) {

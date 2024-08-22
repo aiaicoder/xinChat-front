@@ -1,6 +1,6 @@
 <template>
     <div class="user-panel">
-        <AvatarBase :avatar="userInfo.userAvatar"
+        <AvatarBase :avatar="userInfo.userAvatar || userInfo.avatar"
                     :width="60"
                     :border-radius="5"
                     :show-detail="true">

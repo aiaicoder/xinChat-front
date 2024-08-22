@@ -15,7 +15,8 @@ import Verify from "@/utils/Verify";
 import Confirm from "@/utils/Confirm";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import ContextMenu from '@imengyu/vue3-context-menu'
-
+import mitt from "mitt";
+const eventBus = mitt()
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
@@ -28,3 +29,5 @@ app.use(createPinia()).use(router).use(ElementPlus, {
 app.config.globalProperties.Verify = Verify
 app.config.globalProperties.Confirm = Confirm
 app.mount('#app')
+
+export default eventBus
