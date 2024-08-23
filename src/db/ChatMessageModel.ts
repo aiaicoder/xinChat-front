@@ -110,7 +110,7 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
     const objectStore = transaction.objectStore(storeName);
     const index = objectStore.index('SessionIndex');
     // 固定的 pageSize
-    const pageSize = 4; // 每页显示4条消息
+    const pageSize = 100; // 每页显示4条消息
     // 计算起始位置
     const startId = (pageNo - 1) * pageSize;
     const endId = startId + pageSize;

@@ -12,7 +12,9 @@
             <div class="chat-session-list">
                 <template v-for="item in chatSessionList" :key="item.userId">
                     <ChatSession :data="item" @click="ChatSessionClickHandle(item)"
-                                 @contextmenu.stop="oncontextmenu(item,$event)"></ChatSession>
+                                 @contextmenu.stop="oncontextmenu(item,$event)"
+                                 :current-session="item.contactId === currentChatSession.contactId"
+                    ></ChatSession>
                 </template>
             </div>
         </template>
@@ -29,10 +31,12 @@
 
             </div>
             <div class="chat-panel" v-show="Object.keys(currentChatSession).length > 0">
-                <div class="message-panel">
+                <div class="message-panel" ref="messagePanel">
                     <div class="message-item" v-for="(data,index) in messageList" :id="'message' + data.messageId"
                          :key="index">
-                        {{ data.messageContent }}
+                        <template v-if="data.messageType == 1 || data.messageType == 2 || data.messageType==5">
+                            <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
+                        </template>
                     </div>
                 </div>
                 <MessageSend :currentChatSession="currentChatSession" @reloadMsg="reloadMsg"></MessageSend>
@@ -43,13 +47,14 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {getCurrentInstance, onBeforeMount, onMounted, ref} from "vue";
+import {getCurrentInstance, nextTick, onBeforeMount, onMounted, ref, watch} from "vue";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import ChatSession from "@/views/chat/ChatSession.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import chatMessageModel from "@/db/ChatMessageModel";
 import MessageSend from "@/views/chat/MessageSend.vue";
 import EventBus from '../../main'
+import ChatMessage from "@/views/chat/ChatMessage.vue";
 
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
@@ -66,12 +71,24 @@ const onLoadSessionData = () => {
 }
 
 
+const messagePanel = ref()
+//滚动到底部
+const goToBottom = () => {
+    nextTick(() => {
+        const content = messagePanel.value;
+        setTimeout(() => {
+            content.scrollTo({top: content.scrollHeight});
+        }, 100)
+    });
+}
+
+
 //对会话进行排序
 const sortChatSession = (dataList: Object[]) => {
     dataList.sort((a, b) => {
         const topTypeResult = b["topType"] - a["topType"]
         if (topTypeResult == 0) {
-            return b["lastMessageTime"] - a["lastMessageTime"]
+            return b["lastReceiveTime"] - a["lastReceiveTime"]
         }
         return topTypeResult
     })
@@ -103,6 +120,7 @@ const messageList = ref([])
 
 const ChatSessionClickHandle = (item) => {
     currentChatSession.value = Object.assign({}, item)
+    console.log(currentChatSession.value)
     //消息记录要清空
     messageCountInfo.pageNo = 0
     messageCountInfo.pageTotal = 0;
@@ -112,6 +130,7 @@ const ChatSessionClickHandle = (item) => {
     ChatSessionModel.clearNoReadCount(currentChatSession.value.sessionId)
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     loadChatMessage()
+    goToBottom()
 }
 
 const loadChatMessage = () => {
@@ -119,13 +138,14 @@ const loadChatMessage = () => {
         return
     }
     messageCountInfo.pageNo++
+    //@ts-ignore
     chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
         console.log(res, "11111")
         if (res.messageCount == res.currentPage) {
             messageCountInfo.nodata = true
         }
         res.messages.sort((a, b) => {
-            console.log("aaaa")
+            //@ts-ignore
             return a.messageId - b.messageId
         })
         //分页一点一点添加
@@ -133,6 +153,7 @@ const loadChatMessage = () => {
         messageCountInfo.pageNo = res.currentPage;
         messageCountInfo.pageTotal = res.messageCount;
         if (res.currentPage == 1) {
+            //@ts-ignore
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
         }
     }).catch((err) => {
@@ -145,7 +166,6 @@ const loadSendChatMessage = (messageId) => {
         return
     }
     chatMessageModel.getMessageById(messageId).then(res => {
-        console.log(res)
         //分页一点一点添加
         messageList.value = messageList.value.concat(res)
     })
@@ -199,14 +219,33 @@ const oncontextmenu = (item, e) => {
 //发送完消息的回调
 const reloadMsg = (messageId) => {
     loadSendChatMessage(messageId)
+    goToBottom()
+    onLoadSessionData()
 }
+
 
 onMounted(() => {
     onLoadSessionData()
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
-    EventBus.on("reloadMessage", (messageId) => {
-        console.log('接收到事件：重新加载消息')
-        loadSendChatMessage(messageId)
+    EventBus.on("reloadMessage", (message) => {
+        const curSession = chatSessionList.value.find(item => {
+            return item.sessionId == message.sessionId
+        })
+        if (curSession == null) {
+            chatSessionList.value.push(message.extendData)
+        } else {
+            Object.assign(curSession, message.extendData)
+        }
+        sortChatSession(chatSessionList.value)
+        if (message.sessionId != currentChatSession.value.sessionId) {
+            console.log(message.sessionId != currentChatSession.value.sessionId)
+            //todo 未读消息气泡
+        } else {
+            console.log(messageList.value)
+            Object.assign(currentChatSession.value, message.extendData)
+            messageList.value.push(message)
+            goToBottom()
+        }
     })
 })
 
@@ -287,9 +326,12 @@ onMounted(() => {
         padding: 10px 30px 0 30px;
         height: calc(100vh - 200px - 70px);
         overflow-y: auto;
+        width: 81%;
 
         .message-item {
-            margin-bottom: 15px;
+            /*margin-bottom: 15px;*/
+            /*height: 35px;*/
+            display: block;
             text-align: center;
         }
     }

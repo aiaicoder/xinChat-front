@@ -137,9 +137,7 @@ async function getSessionByUserIdAndContactId(contactId: string): Promise<Object
             // @ts-ignore
             const cursor = event.target.result;
             if (cursor) {
-                if (cursor.value.status === 1) {
-                    result = cursor.value; // 只保留 status 为 1 的记录
-                }
+                result = cursor.value;
                 cursor.continue();
             } else {
                 // @ts-ignore

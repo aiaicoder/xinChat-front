@@ -100,7 +100,6 @@ const logout = async () => {
 }
 
 .left-side {
-  width: 74px;
   text-align: center;
   align-items: center;
 }
@@ -120,4 +119,7 @@ const logout = async () => {
   position: fixed;
 }
 
+.right-container{
+    width: 100%;
+}
 </style>

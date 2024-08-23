@@ -1,11 +1,11 @@
-import { BACKEND_HOST_LOCAL_WS, BACKEND_HOST_PROD_WS } from '@/constant';
+import {BACKEND_HOST_LOCAL_WS, BACKEND_HOST_PROD_WS} from '@/constant';
 import ChatSessionModel from '@/db/ChatSessionModel';
 import chatMessageModel from '@/db/ChatMessageModel';
 import ChatMessageModel from '@/db/ChatMessageModel';
 import userSettingModel from '@/db/UserSettingModel';
-import { useLoginUserStore } from '@/stores/UseLoginUserStore';
-import { getCurrentInstance } from 'vue';
+import {useLoginUserStore} from '@/stores/UseLoginUserStore';
 import EventBus from '../main'
+
 const NODE_ENV = process.env.NODE_ENV;
 
 let ws: WebSocket | null = null;
@@ -93,8 +93,20 @@ const createWs = () => {
                     console.log('保存会话成功')
                 );
                 ChatMessageModel.saveChatMessage(message).then(() => {
-                    console.log('保存消息成功');
-                    EventBus.emit('reloadMessage',message.messageId)
+                    ChatSessionModel.getSessionByUserIdAndContactId(message.sendUserId).then(r => {
+                            // @ts-ignore
+                            if (r.status === 0) {
+                                // @ts-ignore
+                                r.status = 1
+                                // @ts-ignore
+                                r.topType =0
+                                // @ts-ignore
+                                ChatSessionModel.saveChatSession(r).then()
+                            }
+                            message.extendData = r
+                            EventBus.emit('reloadMessage', message)
+                        }
+                    );
                 });
                 break;
             // ... 其他 case

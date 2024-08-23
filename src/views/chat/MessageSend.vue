@@ -129,6 +129,16 @@ const sendMessage = (e) => {
     sendMessageDo({messageContent, messageType: 2}, true)
 
 };
+//添加好友
+const searchAddRef = ref();
+const addContact = (contactId, code) => {
+    console.log("asdsadasdas")
+    searchAddRef.value.show({
+        contactId,
+        contactType: code == 90003 ? "USER" : "GROUP"
+    })
+}
+
 
 const sendMessageDo = async (messageObj: Object = {
     messageContent,
@@ -151,6 +161,7 @@ const sendMessageDo = async (messageObj: Object = {
     messageObj.sendUserId = useLogin.loginUser.id;
     messageObj.contactId = props.currentChatSession.contactId;
     const res = await ChatControllerService.sendMessageUsingPost1(messageObj)
+
     if (!res) {
         return
     }
@@ -158,8 +169,8 @@ const sendMessageDo = async (messageObj: Object = {
         proxy.Confirm(
             {
                 message: res.message,
-                okfun: () => {
-                    addContact(props.currentSession.contactId, res.code)
+                okfun: async () => {
+                    addContact(props.currentChatSession.contactId, res.code)
                 },
                 okText: "重新申请"
             }
@@ -169,23 +180,17 @@ const sendMessageDo = async (messageObj: Object = {
         msgContent.value = ''
     }
     Object.assign(messageObj, res.data)
+    console.log(messageObj)
     messageObj.lastReceiveTime = messageObj.sendTime
+    console.log(messageObj)
     // 会话更新列表
     await ChatSessionModel.update(messageObj, props.currentChatSession.sessionId)
     //保存消息到本地
     await ChatMessageModel.saveChatMessage(messageObj)
-    emit('reloadMsg',res.data.messageId)
+    emit('reloadMsg', res.data.messageId)
 }
 
 
-//添加好友
-const searchAddRef = ref();
-const addContact = (contactId, code) => {
-    searchAddRef.value.show({
-        contactId,
-        contactType: code == 90003 ? "USER" : "GROUP"
-    })
-}
 </script>
 
 <style lang="scss" scoped>

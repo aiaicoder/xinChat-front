@@ -235,6 +235,7 @@ onMounted(() => {
     border-top: 1px solid #ddd;
     height: calc(100vh - 70px);
     overflow: hidden;
+    width: 250px;
     &:hover {
         overflow: auto;
     }
@@ -297,7 +298,6 @@ onMounted(() => {
 }
 
 .title-panel {
-    width: 100%;
     height: 60px;
     display: flex;
     align-items: center;
