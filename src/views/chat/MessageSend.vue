@@ -92,6 +92,7 @@ import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import SearchAdd from "@/views/contact/SearchAdd.vue";
 import ChatMessageModel from "@/db/ChatMessageModel";
 import ChatSessionModel from "@/db/ChatSessionModel";
+import {getFileType} from "@/constant/FileType";
 
 const activeEmoji = ref('笑脸');
 const msgContent = ref(''); //消息内容
@@ -126,33 +127,56 @@ const sendMessage = (e) => {
         }, 1500);
         return
     }
-    sendMessageDo({messageContent, messageType: 2}, true)
+    sendMessageDo({messageContent, messageType: 2}, true, null)
 
 };
 //添加好友
 const searchAddRef = ref();
 const addContact = (contactId, code) => {
-    console.log("asdsadasdas")
     searchAddRef.value.show({
         contactId,
         contactType: code == 90003 ? "USER" : "GROUP"
     })
+}
+const uploadRef = ref();
+
+//上传文件
+const uploadFile = (file) => {
+    uploadFileDo(file.file)
+    uploadRef.value.clearFiles()
+}
+
+//通过文件后缀获取文件类型
+const getFileTYpeByName = (fileName: string) => {
+    const suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+    return getFileType(suffix)
+}
+
+//真正上传文件
+const uploadFileDo = (file) => {
+    const fileType = getFileTYpeByName(file.name)
+    sendMessageDo({
+        messageContent: '[' + getFileType(fileType) + ']',
+        messageType: 5,
+        fileSize: file.size,
+        fileName: file.name,
+        fileType: fileType
+    }, false, file)
+
 }
 
 
 const sendMessageDo = async (messageObj: Object = {
     messageContent,
     messageType,
-    localFilePath,
     fileSize,
     fileName,
-    filePath,
     fileType,
     sessionId,
     sendUserId,
     contactId
-}, cleanMsgContent) => {
-    //todo 判断文件大小
+}, cleanMsgContent, file) => {
+    //判断文件大小
     if (messageObj.fileSize == 0) {
         proxy.Confirm({message: `${messageObj.fileName}是一个空文件无法发送,请重新选择`, showCancelButton: false,})
         return
@@ -161,7 +185,6 @@ const sendMessageDo = async (messageObj: Object = {
     messageObj.sendUserId = useLogin.loginUser.id;
     messageObj.contactId = props.currentChatSession.contactId;
     const res = await ChatControllerService.sendMessageUsingPost1(messageObj)
-
     if (!res) {
         return
     }
@@ -180,8 +203,20 @@ const sendMessageDo = async (messageObj: Object = {
         msgContent.value = ''
     }
     Object.assign(messageObj, res.data)
-    console.log(messageObj)
     messageObj.lastReceiveTime = messageObj.sendTime
+    if (file) {
+        let biz = '';
+        if (messageObj.fileType == 0) {
+            biz = 'picture'
+        } else {
+            biz = 'video'
+        }
+        const res = await ChatControllerService.uploadFileUsingPost2(file, biz, messageObj.messageId)
+        if (res.code === 0){
+            messageObj.status = 1;
+            messageObj.fileUrl = res.data;
+        }
+    }
     console.log(messageObj)
     // 会话更新列表
     await ChatSessionModel.update(messageObj, props.currentChatSession.sessionId)

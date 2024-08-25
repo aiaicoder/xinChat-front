@@ -10,7 +10,13 @@
             </div>
             <template v-else>
                 <div class="content" v-html="data.messageContent" v-if="data.messageType != 5"></div>
-                <div class="content" v-else>媒体消息</div>
+                <div class="content" v-else>
+                    <template v-if="data.fileType == 0">
+                        <ChatMessageImage :data="data"></ChatMessageImage>
+                    </template>
+                    <template v-if="data.fileType == 1">视频消息</template>
+                    <template v-if="data.fileType == 2"></template>
+                </div>
             </template>
         </div>
         <Avatar :width="35" :avatar="useLogin.loginUser.userAvatar"></Avatar>
@@ -32,7 +38,9 @@
             </div>
             <template v-else>
                 <div class="content" v-html="data.messageContent" v-if="data.messageType != 5"></div>
-                <div class="content" v-else>媒体消息</div>
+                <div class="content" v-else>
+                    <ChatMessageImage :data="data"></ChatMessageImage>
+                </div>
             </template>
         </div>
     </div>
@@ -43,6 +51,7 @@
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {getCurrentInstance} from "vue";
 import Avatar from "@/components/Avatar.vue";
+import ChatMessageImage from "@/views/chat/ChatMessageImage.vue";
 
 const {proxy} = getCurrentInstance()
 const useLogin = useLoginUserStore()
@@ -60,6 +69,8 @@ const props = defineProps({
         }
     }
 })
+
+
 </script>
 
 <style lang="scss" scoped>

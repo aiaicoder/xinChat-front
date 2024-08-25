@@ -19,9 +19,6 @@ const props = defineProps({
     avatar:{
         type:[String]
     },
-    fileId:{
-        type:[String,Number]
-    },
     partType:{
         type: String,
         default: 'avatar'
@@ -40,7 +37,6 @@ const serverUrl = computed(() =>{
         return;
     }
     return props.avatar;
-    //todo 获取线上图片的url
 })
 
 </script>
