@@ -71,7 +71,13 @@ const createWs = () => {
                     console.log('联系人更新成功')
                 );
                 break;
-            case 2:
+            case 6:
+                ChatMessageModel.updateMessage(message).then(() => (
+                    EventBus.emit('reloadMessage', message)
+                ))
+                break;
+            case 2://聊天消息
+            case 5://图片，视频消息
                 if (message.sendUserId == useLogin.loginUser.id && message.contactType == 1) {
                     break;
                 }

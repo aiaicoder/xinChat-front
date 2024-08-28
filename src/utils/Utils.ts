@@ -25,4 +25,25 @@ const formatDate = (timestamp: number) => {
        return timestampTime.format("YY/MM/DD")
    }
 }
-export default {isEmpty, getAreaInfo, formatDate}
+
+const size2Str = (limit :any) => {
+    let size = ""
+    if (limit < 0.1 * 1024){
+        size = limit.toFixed(2) + "B"
+    } else if (limit < 0.1 * 1024 * 1024){
+        size = (limit / 1024).toFixed(2) + "KB"
+    } else if (limit < 0.1 * 1024 * 1024 * 1024){
+        size = (limit / (1024 * 1024)).toFixed(2) + "MB"
+    } else {
+        size = (limit / (1024 * 1024 * 1024)).toFixed(2) + "GB"
+    }
+    const sizeStr = size + "" //转成字符串
+    const index = sizeStr.indexOf(".") //获取小数点处的索引
+    const dou = sizeStr.substring(index + 1,2) //获取小数点后两位的值
+    if (dou == "00"){ //如果小数点后第二位0，省略之
+        return sizeStr.substring(0, index) + sizeStr.substring(index + 3, 2)
+    }
+    return sizeStr
+    
+}
+export default {isEmpty, getAreaInfo, formatDate,size2Str}

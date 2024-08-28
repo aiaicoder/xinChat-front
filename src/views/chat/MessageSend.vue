@@ -165,6 +165,23 @@ const uploadFileDo = (file) => {
 
 }
 
+//展示表情
+const showEmojiPopoverHandler = () => {
+    showEmojiPopover.value = !showEmojiPopover.value;
+}
+const openPopover = () => {
+    document.addEventListener('click', hidePopover,false)
+}
+
+const closePopover = () => {
+    document.removeEventListener('click', hidePopover,false )
+}
+
+//发送表情
+const sendEmoji = (emoji) => {
+    msgContent.value += emoji;
+    showEmojiPopover.value = false;
+}
 
 const sendMessageDo = async (messageObj: Object = {
     messageContent,
@@ -208,8 +225,10 @@ const sendMessageDo = async (messageObj: Object = {
         let biz = '';
         if (messageObj.fileType == 0) {
             biz = 'picture'
-        } else {
+        } else if (messageObj.fileType == 1) {
             biz = 'video'
+        }else {
+            biz = 'file'
         }
         const res = await ChatControllerService.uploadFileUsingPost2(file, biz, messageObj.messageId)
         if (res.code === 0){

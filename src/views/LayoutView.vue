@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import {Edit, SwitchButton} from '@element-plus/icons-vue'
+import {Edit} from '@element-plus/icons-vue'
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
@@ -60,6 +60,7 @@ const highLight = (path) => {
 const toSetting = () => {
     router.push('/setting')
 }
+
 //过滤子路由
 const showSubRoutes = computed(() => {
     return showRoutes.value.flatMap(route => route.children || []);

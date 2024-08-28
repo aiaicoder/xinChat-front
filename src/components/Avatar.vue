@@ -11,10 +11,12 @@
         <el-popover
                 v-else
                 :width="280"
+                :visible="showUserInfo"
                 placement="right-start"
                 :show-arrow="false"
                 transition="none"
-                :hide-after="0"
+                trigger="click"
+                @hide="closePopover"
                 @show="getContactInfo"
                 ref="popoverRef"
         >
@@ -24,6 +26,7 @@
                         :width="width"
                         :border-radius="borderRadius"
                         :show-detail="false"
+                        @click="showUserInfoPopoverHandler"
                 >
                 </AvatarBase>
             </template>
@@ -70,8 +73,23 @@ const props = defineProps({
 })
 
 const userInfo = ref({})
+const popoverRef = ref(null);
+const showUserInfo = ref(false);
+const hidePopover = () => {
+    showUserInfo.value = false;
+};
+
+const showUserInfoPopoverHandler = () => {
+    showUserInfo.value = !showUserInfo.value;
+}
+
+const closePopover = () => {
+    document.removeEventListener('click', hidePopover,false )
+}
+
 const getContactInfo = async () => {
     userInfo.value.id= props.userId
+    document.addEventListener('click', hidePopover,false)
     if (loginUse.loginUser.id == props.userId) {
         userInfo.value = loginUse.loginUser
     } else {
@@ -85,6 +103,8 @@ const getContactInfo = async () => {
         userInfo.value = Object.assign({}, res.data)
     }
 }
+
+
 //todo 发送消息
 const sendMessage = () => {
     console.log("发送消息")
@@ -93,6 +113,7 @@ const sendMessage = () => {
 const addContact = () => {
     console.log("加为好友")
 }
+
 </script>
 
 <style scoped>

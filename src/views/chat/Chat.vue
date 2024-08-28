@@ -41,6 +41,9 @@
                 </div>
                 <MessageSend :currentChatSession="currentChatSession" @reloadMsg="reloadMsg"></MessageSend>
             </div>
+            <div class="chat-blank" v-show="Object.keys(currentChatSession).length == 0" >
+                <Blank></Blank>
+            </div>
         </template>
     </layout>
 </template>
@@ -55,6 +58,7 @@ import chatMessageModel from "@/db/ChatMessageModel";
 import MessageSend from "@/views/chat/MessageSend.vue";
 import EventBus from '../../main'
 import ChatMessage from "@/views/chat/ChatMessage.vue";
+import Blank from "@/components/Blank.vue";
 
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
@@ -120,7 +124,6 @@ const messageList = ref([])
 
 const ChatSessionClickHandle = (item) => {
     currentChatSession.value = Object.assign({}, item)
-    console.log(currentChatSession.value)
     //消息记录要清空
     messageCountInfo.pageNo = 0
     messageCountInfo.pageTotal = 0;
@@ -140,7 +143,6 @@ const loadChatMessage = () => {
     messageCountInfo.pageNo++
     //@ts-ignore
     chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
-        console.log(res, "11111")
         if (res.messageCount == res.currentPage) {
             messageCountInfo.nodata = true
         }
@@ -156,6 +158,7 @@ const loadChatMessage = () => {
             //@ts-ignore
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
         }
+        console.log(messageList.value)
     }).catch((err) => {
         console.log(err, "出错")
     })
@@ -228,6 +231,18 @@ onMounted(() => {
     onLoadSessionData()
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     EventBus.on("reloadMessage", (message) => {
+        if (message.messageType == 6){
+            const localMessage = messageList.value.find(item => {
+                if (item.messageId == message.messageId){
+                    return item
+                }
+            })
+            if (localMessage != null){
+                localMessage.status = 1;
+                localMessage.messageContent = message.messageContent;
+            }
+            return
+        }
         const curSession = chatSessionList.value.find(item => {
             return item.sessionId == message.sessionId
         })

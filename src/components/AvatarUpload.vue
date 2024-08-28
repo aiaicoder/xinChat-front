@@ -56,7 +56,7 @@ const picUrl = ref('')
 if (props.modeValue) {
     picUrl.value = props.modeValue
 }
-
+console.log(props.modeValue)
 const uploadImage = async (file) => {
     const res = await FileControllerService.uploadAvatarUsingPost(file.file, "user_avatar")
     if (res.code === 0) {

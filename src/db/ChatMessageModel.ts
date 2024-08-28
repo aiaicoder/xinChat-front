@@ -90,7 +90,6 @@ async function getMessageById(messageId: string): Promise<Object> {
 }
 
 
-
 /**
  * 根据 sessionId 分页查询消息
  * @param {string} sessionId - 会话ID
@@ -122,7 +121,7 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
         let count = 0;
         let messageCount = 0;
         // 开始查询
-        const query = index.openCursor(IDBKeyRange.only(sessionId),'prev'); // 查询特定的sessionId
+        const query = index.openCursor(IDBKeyRange.only(sessionId), 'prev'); // 查询特定的sessionId
         query.onsuccess = (event) => {
             // @ts-ignore
             const cursor = event.target.result;
@@ -151,6 +150,17 @@ async function getChatMessage(sessionId: string, pageNo: number, maxMessageId: n
     });
 }
 
+async function updateMessage(message: Object): Promise<void> {
+    // @ts-ignore
+    const messageById = await getMessageById(message.messageId);
+
+    console.log(messageById)
+    // @ts-ignore
+    messageById.messageContent = message.messageContent;
+    // @ts-ignore
+    messageById.status = message.status;
+    await saveChatMessage(messageById)
+}
 
 
 export default {
@@ -158,5 +168,6 @@ export default {
     getAllMessages,
     getMessageById,
     saveChatMessage,
-    getChatMessage
+    getChatMessage,
+    updateMessage
 }

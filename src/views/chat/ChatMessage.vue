@@ -14,16 +14,20 @@
                     <template v-if="data.fileType == 0">
                         <ChatMessageImage :data="data"></ChatMessageImage>
                     </template>
-                    <template v-if="data.fileType == 1">视频消息</template>
-                    <template v-if="data.fileType == 2"></template>
+                    <template v-if="data.fileType == 1">
+                        <ChatMessageVideo :data="data"></ChatMessageVideo>
+                    </template>
+                    <template v-if="data.fileType == 2">
+                        <ChatMessageFile :data="data"></ChatMessageFile>
+                    </template>
                 </div>
             </template>
         </div>
-        <Avatar :width="35" :avatar="useLogin.loginUser.userAvatar"></Avatar>
+        <Avatar :width="35" :avatar="useLogin.loginUser.userAvatar" :userId="useLogin.loginUser.id"></Avatar>
     </div>
     <div class="message-content-other" v-else>
         <div class="user-avatar">
-            <Avatar :width="35" :avatar="currentChatSession.avatar"></Avatar>
+            <Avatar :width="35" :avatar="currentChatSession.avatar" :user-id="currentChatSession.contactId"></Avatar>
         </div>
         <div :class="['content-panel',data.messageType == 5 ? 'content-panel-media' : '',data.messageType == 5 ? 'group-content' : '']">
             <div class="nick-name" v-if="data.contactType == 1">
@@ -39,7 +43,15 @@
             <template v-else>
                 <div class="content" v-html="data.messageContent" v-if="data.messageType != 5"></div>
                 <div class="content" v-else>
-                    <ChatMessageImage :data="data"></ChatMessageImage>
+                    <template v-if="data.fileType == 0">
+                        <ChatMessageImage :data="data"></ChatMessageImage>
+                    </template>
+                    <template v-if="data.fileType == 1">
+                        <ChatMessageVideo :data="data"></ChatMessageVideo>
+                    </template>
+                    <template v-if="data.fileType == 2">
+                        <ChatMessageFile :data="data"></ChatMessageFile>
+                    </template>
                 </div>
             </template>
         </div>
@@ -52,6 +64,8 @@ import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {getCurrentInstance} from "vue";
 import Avatar from "@/components/Avatar.vue";
 import ChatMessageImage from "@/views/chat/ChatMessageImage.vue";
+import ChatMessageVideo from "@/views/chat/ChatMessageVideo.vue";
+import ChatMessageFile from "@/views/chat/ChatMessageFile.vue";
 
 const {proxy} = getCurrentInstance()
 const useLogin = useLoginUserStore()

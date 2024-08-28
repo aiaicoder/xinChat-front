@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import AreaData from "@/components/AreaData.js";
+import AreaData from "@/constant/AreaData";
 import {ref} from "vue";
 
 const props = defineProps({

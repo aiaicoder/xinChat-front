@@ -1,6 +1,6 @@
 <template>
-    <ShowImage :avatar="data.fileUrl || data.filePath" part-type="chat"
-               :file-type="data.fileType"></ShowImage>
+    <ShowImage :avatar="data.fileUrl || CosConstant+data.filePath || data.messageContent" part-type="chat"
+               :file-type="data.fileType" :show-play="true"></ShowImage>
 </template>
 
 <script setup lang="ts">
@@ -15,10 +15,6 @@ const props = defineProps({
         }
     },
 })
-const print = () => {
-    console.log(props.data)
-}
-print()
 </script>
 
 <style scoped>
