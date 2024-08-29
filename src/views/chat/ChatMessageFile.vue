@@ -1,8 +1,8 @@
 <template>
-    <div class="file-panel" :style="{cursor:data.status == 1 ? 'pointer' : ''}">
+    <div class="file-panel" :style="{cursor:data.status == 1 ? 'pointer' : ''}" @click="downloadFile">
         <div class="file-info" :title="data.fileName">
             <div class="file-name">{{ data.fileName }}</div>
-            <div class="file-size">大小:{{Utils.size2Str(data.fileSize)}}</div>
+            <div class="file-size">大小:{{ Utils.size2Str(data.fileSize) }}</div>
             <div class="process">
                 <span class="iconfont info-ok icon-ok" v-if="data.status == 1"></span>
                 <div class="info">{{ data.status == 0 ? '处理中...' : '处理完成' }}</div>
@@ -13,7 +13,8 @@
 
 <script setup lang="ts">
 import Utils from "@/utils/Utils";
-
+import {ChatControllerService} from "../../../generated";
+import FileSaver from "file-saver";
 const props = defineProps({
     data: {
         type: Object,
@@ -22,6 +23,14 @@ const props = defineProps({
         }
     },
 })
+
+const downloadFile = async () => {
+    if (props.data.status == 0) {
+        return
+    }
+    const response =  await ChatControllerService.downloadFileUsingGet1(props.data.messageId)
+    FileSaver.saveAs(response, props.data.fileName) // 创建一个 Blob 对象
+}
 
 </script>
 

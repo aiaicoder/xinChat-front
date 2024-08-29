@@ -1,6 +1,6 @@
 <template>
     <div class="image-panel" @click="showImageHandle">
-        <el-image :src="serverUrl" fit="scale-down" :width="width">
+        <el-image :src="serverUrl" fit="scale-down" :width="width" :preview-src-list="showDetail ? [serverUrl] : null">
             <template #error>
                 <div class="iconfont icon-image-error"></div>
             </template>
@@ -12,37 +12,43 @@
 </template>
 
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, ref} from "vue";
 
 const props = defineProps({
     width: {
         type: Number,
         default: 170
     },
-    showPlay:{
+    showPlay: {
         type: Boolean,
         default: false
     },
-    avatar:{
-        type:[String]
+    avatar: {
+        type: [String]
     },
-    partType:{
+    partType: {
         type: String,
         default: 'avatar'
     },
-    fileType:{
-        type:Number,
+    fileType: {
+        type: Number,
         default: 0
     },
-    forceGet:{
+    forceGet: {
+        type: Boolean,
+        default: false
+    },
+    showDetail: {
         type: Boolean,
         default: false
     }
 })
-const serverUrl = computed(() =>{
-    if (!props.avatar){
+
+const serverUrl = computed(() => {
+    if (!props.avatar) {
         return;
     }
+    console.log(props)
     return props.avatar;
 })
 

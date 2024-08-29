@@ -20,7 +20,7 @@
                 @show="getContactInfo"
                 ref="popoverRef"
         >
-            <template #reference>
+            <template #reference >
                 <AvatarBase
                         :avatar="avatar"
                         :width="width"

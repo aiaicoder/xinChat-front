@@ -12,7 +12,7 @@
                 <div class="content" v-html="data.messageContent" v-if="data.messageType != 5"></div>
                 <div class="content" v-else>
                     <template v-if="data.fileType == 0">
-                        <ChatMessageImage :data="data"></ChatMessageImage>
+                        <ChatMessageImage :data="data" :show-detail="true"></ChatMessageImage>
                     </template>
                     <template v-if="data.fileType == 1">
                         <ChatMessageVideo :data="data"></ChatMessageVideo>
@@ -44,7 +44,7 @@
                 <div class="content" v-html="data.messageContent" v-if="data.messageType != 5"></div>
                 <div class="content" v-else>
                     <template v-if="data.fileType == 0">
-                        <ChatMessageImage :data="data"></ChatMessageImage>
+                        <ChatMessageImage :data="data" :show-detail="true"></ChatMessageImage>
                     </template>
                     <template v-if="data.fileType == 1">
                         <ChatMessageVideo :data="data"></ChatMessageVideo>

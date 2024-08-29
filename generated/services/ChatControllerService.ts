@@ -12,11 +12,13 @@ export class ChatControllerService {
     /**
      * downloadFile
      * @param messageId messageId
+     * @param options
      * @returns any OK
      * @throws ApiError
      */
     public static downloadFileUsingGet1(
         messageId?: number,
+        options?: { [key: string]: any },
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -31,6 +33,7 @@ export class ChatControllerService {
             },
         });
     }
+
     /**
      * 撤回消息
      * @param messageBaseRequest messageBaseRequest

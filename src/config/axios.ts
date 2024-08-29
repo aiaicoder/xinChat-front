@@ -80,10 +80,7 @@ axios.interceptors.request.use(
 // 添加响应拦截器
 axios.interceptors.response.use(
     function (response) {
-        const {responseType} = response.config;
-        // 2xx 范围内的状态码都会触发该函数。
-        // 对响应数据做点什么
-        const responseData = response.data;
+        const requestPath: string = response.config.url ?? '';
         //未登录
         if (UNAUTHORIZED_CODES.has(response.data.code)) {
             // 使用 Set 来判断状态码，优化了原有的冗长的条件判断
@@ -91,9 +88,8 @@ axios.interceptors.response.use(
                 window.location.href = `/user/login?redirect=${window.location.href}`;
             }
         }
-        //如果返回的是流
-        if (responseType === "blob" || responseType === "arraybuffer") {
-            return responseData;
+        if (requestPath.includes("download")) {
+            return response;
         }
         return response;
     },
