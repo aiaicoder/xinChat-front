@@ -28,7 +28,7 @@ const downloadFile = async () => {
     if (props.data.status == 0) {
         return
     }
-    const response =  await ChatControllerService.downloadFileUsingGet1(props.data.messageId)
+    const response =  await ChatControllerService.downloadFileUsingGet(props.data.messageId)
     FileSaver.saveAs(response, props.data.fileName) // 创建一个 Blob 对象
 }
 

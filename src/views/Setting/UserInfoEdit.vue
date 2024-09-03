@@ -92,7 +92,7 @@ const saveUserInfo = () => {
             delete params.area
             console.log(params)
         }
-        const res = await UserControllerService.updateMyUserUsingPost1(params)
+        const res = await UserControllerService.updateMyUserUsingPost(params)
         if (res.code !== 0) {
             ElMessage.error(res.message)
             return

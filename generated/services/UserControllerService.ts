@@ -17,7 +17,7 @@ export class UserControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static checkCodeUsingGet1(): CancelablePromise<BaseResponse> {
+    public static checkCodeUsingGet(): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/user/checkCode',
@@ -33,7 +33,7 @@ export class UserControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getLoginUserUsingGet1(): CancelablePromise<BaseResponse> {
+    public static getLoginUserUsingGet(): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/user/get/login',
@@ -45,14 +45,14 @@ export class UserControllerService {
         });
     }
     /**
-     * test
+     * getSysSetting
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static testUsingGet1(): CancelablePromise<BaseResponse> {
+    public static getSysSettingUsingGet1(): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/user/get/test',
+            url: '/api/user/getSysSetting',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -67,7 +67,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static listUserVoByPageUsingPost1(
+    public static listUserVoByPageUsingPost(
         userQueryRequest: UserQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -88,7 +88,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static userLoginUsingPost1(
+    public static userLoginUsingPost(
         userLoginRequest: UserLoginRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -108,7 +108,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static userLogoutUsingPost1(): CancelablePromise<BaseResponse | any> {
+    public static userLogoutUsingPost(): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/user/logout',
@@ -126,7 +126,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static userRegisterUsingPost1(
+    public static userRegisterUsingPost(
         userRegisterRequest: UserRegisterRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -147,7 +147,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static resetPasswordUsingPost1(
+    public static resetPasswordUsingPost(
         userRegisterRequest: UserRegisterRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -168,7 +168,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static updateMyUserUsingPost1(
+    public static updateMyUserUsingPost(
         userUpdateMyRequest: UserUpdateMyRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -189,7 +189,7 @@ export class UserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static updatePasswordUsingPost1(
+    public static updatePasswordUsingPost(
         updatePasswordRequest: UpdatePasswordRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

@@ -16,7 +16,7 @@ export class AdminUserBeautyControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static addUserUsingPost2(
+    public static addUserUsingPost(
         userBeautyAddRequest: UserBeautyAddRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -36,7 +36,7 @@ export class AdminUserBeautyControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static deleteUserBeautyUsingGet1(
+    public static deleteUserBeautyUsingGet(
         id: number,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -59,7 +59,7 @@ export class AdminUserBeautyControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static loadBeautyListUsingPost1(
+    public static loadBeautyListUsingPost(
         userBeautyQuery: UserBeautyQuery,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

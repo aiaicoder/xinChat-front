@@ -4,6 +4,6 @@
 /* eslint-disable */
 export type UpdatePasswordRequest = {
     checkPassword?: string;
-    userPassword?: string;
+    password?: string;
 };
 

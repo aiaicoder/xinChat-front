@@ -128,7 +128,7 @@ const checkCodeUrl = ref()
 const checkCodeKey = ref()
 //获取验证码
 const getCheckCode = async () => {
-    const result = await UserControllerService.checkCodeUsingGet1()
+    const result = await UserControllerService.checkCodeUsingGet()
     if (result.code == 0) {
         checkCodeUrl.value = result.data.checkCode;
         checkCodeKey.value = result.data.checkCodeKey;
@@ -178,7 +178,7 @@ const rules = reactive({
 
 //用户注册
 const register = async () => {
-    const res = await UserControllerService.userRegisterUsingPost1(formData)
+    const res = await UserControllerService.userRegisterUsingPost(formData)
     if (res.code == 0) {
         ElMessage({
             message: "注册成功，赶快去登录吧",
@@ -196,7 +196,7 @@ const register = async () => {
 
 //用户登录
 const login = async () => {
-    const res = await UserControllerService.userLoginUsingPost1(formData)
+    const res = await UserControllerService.userLoginUsingPost(formData)
     if (res.code == 0) {
         if (res.data?.token) {
             localStorage.setItem('xinChat-token', res.data.token);
@@ -218,7 +218,7 @@ const login = async () => {
 
 //重置密码
 const resetPassword = async () => {
-    const res = await UserControllerService.resetPasswordUsingPost1(formData);
+    const res = await UserControllerService.resetPasswordUsingPost(formData);
     if (res.code === 0) {
         ElMessage({
             message: "重置密码成功",

@@ -14,13 +14,13 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class UserContactControllerService {
     /**
-     * applyAdd
+     * 发送申请
      * @param applyAddRequest applyAddRequest
      * @returns BaseResponse OK
      * @returns any Created
      * @throws ApiError
      */
-    public static applyAddUsingPost1(
+    public static applyAddUsingPost(
         applyAddRequest: ApplyAddRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -41,7 +41,7 @@ export class UserContactControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static blackContactUsingPost1(
+    public static blackContactUsingPost(
         contactDelRequest: ContactDelRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -62,7 +62,7 @@ export class UserContactControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static dealWithApplyUsingPost1(
+    public static dealWithApplyUsingPost(
         applyDealRequest: ApplyDealRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -83,7 +83,7 @@ export class UserContactControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static delContactUsingPost1(
+    public static delContactUsingPost(
         contactDelRequest: ContactDelRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -103,7 +103,7 @@ export class UserContactControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getContactInfoUsingGet1(
+    public static getContactInfoUsingGet(
         contactId?: string,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -125,7 +125,7 @@ export class UserContactControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getContactUserInfoUsingGet1(
+    public static getContactUserInfoUsingGet(
         contactId?: string,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -142,13 +142,13 @@ export class UserContactControllerService {
         });
     }
     /**
-     * loadApplyAdd
+     * 加载申请
      * @param applyAddRequest applyAddRequest
      * @returns BaseResponse OK
      * @returns any Created
      * @throws ApiError
      */
-    public static loadApplyAddUsingPost1(
+    public static loadApplyAddUsingPost(
         applyAddRequest: ApplyQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -169,7 +169,7 @@ export class UserContactControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static loadContactUsingPost1(
+    public static loadContactUsingPost(
         loadUserContact: LoadUserContactRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -190,7 +190,7 @@ export class UserContactControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static searchUsingPost1(
+    public static searchUsingPost(
         userSearchRequest: UserSearchRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

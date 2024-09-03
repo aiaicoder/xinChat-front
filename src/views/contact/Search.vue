@@ -74,7 +74,7 @@ const search = async () => {
         })
         return;
     }
-    const result = await UserContactControllerService.searchUsingPost1({
+    const result = await UserContactControllerService.searchUsingPost({
         userId: loginStore.loginUser.id,
         contactId: contactId.value
     })

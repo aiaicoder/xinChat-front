@@ -12,13 +12,11 @@ export class ChatControllerService {
     /**
      * downloadFile
      * @param messageId messageId
-     * @param options
      * @returns any OK
      * @throws ApiError
      */
-    public static downloadFileUsingGet1(
+    public static downloadFileUsingGet(
         messageId?: number,
-        options?: { [key: string]: any },
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -33,7 +31,6 @@ export class ChatControllerService {
             },
         });
     }
-
     /**
      * 撤回消息
      * @param messageBaseRequest messageBaseRequest
@@ -41,7 +38,7 @@ export class ChatControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static recallMessageUsingPost1(
+    public static recallMessageUsingPost(
         messageBaseRequest: MessageBaseRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -62,7 +59,7 @@ export class ChatControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static sendMessageUsingPost1(
+    public static sendMessageUsingPost(
         messageSendRequest: MessageSendRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -85,7 +82,7 @@ export class ChatControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static uploadFileUsingPost2(
+    public static uploadFileUsingPost(
         file: Blob,
         biz?: string,
         messageId?: number,

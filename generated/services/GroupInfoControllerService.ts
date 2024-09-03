@@ -17,7 +17,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static addOrRemoveGroupMemberUsingPost1(
+    public static addOrRemoveGroupMemberUsingPost(
         addOrRemoveGroupMemberRequest: AddOrRemoveGroupMemberRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -38,7 +38,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static dismissGroupUsingPost1(
+    public static dismissGroupUsingPost(
         groupId?: string,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -61,7 +61,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static getGroupInfoUsingPost1(
+    public static getGroupInfoUsingPost(
         groupInfoQueryRequest: GroupInfoQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -82,7 +82,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static getGroupInfoChatUsingPost1(
+    public static getGroupInfoChatUsingPost(
         groupInfoQueryRequest: GroupInfoQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -103,7 +103,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static leaveGroupUsingPost1(
+    public static leaveGroupUsingPost(
         groupId?: string,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -125,7 +125,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static loadMyGroupUsingPost1(): CancelablePromise<BaseResponse | any> {
+    public static loadMyGroupUsingPost(): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/group/loadMyGroup',
@@ -143,7 +143,7 @@ export class GroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static saveGroupUsingPost1(
+    public static saveGroupUsingPost(
         saveGroupRequest: SaveGroupRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

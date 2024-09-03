@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserUpdateMyRequest = {
-    areaCode?: number;
+    areaCode?: string;
     areaName?: string;
     joinType?: number;
     sex?: number;

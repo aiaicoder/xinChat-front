@@ -14,7 +14,7 @@ export class AdminGroupInfoControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static dismissGroupUsingGet1(
+    public static dismissGroupUsingGet(
         groupId?: string,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -37,7 +37,7 @@ export class AdminGroupInfoControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static loadGroupInfoUsingPost1(
+    public static loadGroupInfoUsingPost(
         groupInfoQueryRequest: GroupInfoQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

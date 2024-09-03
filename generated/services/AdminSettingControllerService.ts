@@ -13,7 +13,7 @@ export class AdminSettingControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getSysSettingUsingGet2(): CancelablePromise<BaseResponse> {
+    public static getSysSettingUsingGet(): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/admin/setting/getSysSetting',
@@ -31,7 +31,7 @@ export class AdminSettingControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static updateSysSettingUsingPost1(
+    public static updateSysSettingUsingPost(
         sysSettingDto: SysSettingDTO,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

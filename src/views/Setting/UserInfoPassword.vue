@@ -70,7 +70,7 @@ const saveUserInfo = () => {
             {
                 message: '修改密码后将退出,需重新登录,确定要修改吗',
                 okfun: async () => {
-                    const res = await UserControllerService.updatePasswordUsingPost1(formData)
+                    const res = await UserControllerService.updatePasswordUsingPost(formData)
                     if (res.code === 0) {
                         ElMessage.success('修改成功')
                         router.push("/user/login")

@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {getCurrentInstance, nextTick, onBeforeMount, onMounted, ref, watch} from "vue";
+import {getCurrentInstance, nextTick, onMounted, ref} from "vue";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import ChatSession from "@/views/chat/ChatSession.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
@@ -59,9 +59,12 @@ import MessageSend from "@/views/chat/MessageSend.vue";
 import EventBus from '../../main'
 import ChatMessage from "@/views/chat/ChatMessage.vue";
 import Blank from "@/components/Blank.vue";
+import {UserControllerService} from "../../../generated";
+import {SystemSettingStore} from "@/stores/SysSettingStore";
 
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
+const sysSetting = SystemSettingStore()
 const search = () => {
 }
 
@@ -227,8 +230,14 @@ const reloadMsg = (messageId) => {
 }
 
 
+const getSystemSetting = async () => {
+    const res = await UserControllerService.getSysSettingUsingGet1()
+    sysSetting.setSysSetting(res.data)
+}
+
 onMounted(() => {
     onLoadSessionData()
+    getSystemSetting()
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     EventBus.on("reloadMessage", (message) => {
         if (message.messageType == 6){
@@ -240,6 +249,7 @@ onMounted(() => {
             if (localMessage != null){
                 localMessage.status = 1;
                 localMessage.messageContent = message.messageContent;
+                localMessage.videoCoverUrl =  message.videoCoverUrl;
             }
             return
         }

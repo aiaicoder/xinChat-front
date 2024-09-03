@@ -1,6 +1,6 @@
 <template>
-    <ShowImage :avatar="data.fileUrl || CosConstant+data.filePath || data.messageContent" part-type="chat"
-               :file-type="data.fileType" :show-play="true"></ShowImage>
+    <ShowImage :avatar="data.videoCoverUrl" part-type="chat"
+               :file-type="data.fileType" :show-play="true" :video-url="data.filePath"></ShowImage>
 </template>
 
 <script setup lang="ts">
@@ -15,6 +15,8 @@ const props = defineProps({
         }
     },
 })
+
+
 </script>
 
 <style scoped>

@@ -76,7 +76,7 @@ const submit = () => {
         if (!valid) {
             return
         }
-        const res = await GroupInfoControllerService.saveGroupUsingPost1(formData.value)
+        const res = await GroupInfoControllerService.saveGroupUsingPost(formData.value)
         if (res.code !== 0) {
             ElMessage.error(res.message)
             return

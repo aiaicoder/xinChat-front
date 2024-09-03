@@ -83,7 +83,7 @@ const dissolutionGroup = () => {
         message: "确定解散该群吗？删除后将无法恢复!",
         okfun: async () => {
             contactStore.setContactReload(null)
-            const res = await GroupInfoControllerService.dismissGroupUsingPost1(groupInfo.value.groupId)
+            const res = await GroupInfoControllerService.dismissGroupUsingPost(groupInfo.value.groupId)
             if (res.code === 0) {
                 ElMessage.success("解散成功")
             } else {
@@ -101,7 +101,7 @@ const leaveGroup = () => {
         message: "确定退出群组?",
         okfun: async () => {
             contactStore.setContactReload(null)
-            const res = await GroupInfoControllerService.leaveGroupUsingPost1(groupInfo.value.groupId)
+            const res = await GroupInfoControllerService.leaveGroupUsingPost(groupInfo.value.groupId)
             if (res.code === 0) {
                 ElMessage.success("退出成功")
             } else {
@@ -126,7 +126,7 @@ const sendMessage = () => {
 
 //获取群聊信息
 const getGroupInfo = async () => {
-    const res = await GroupInfoControllerService.getGroupInfoUsingPost1(
+    const res = await GroupInfoControllerService.getGroupInfoUsingPost(
         {
             groupId: groupId.value
         }

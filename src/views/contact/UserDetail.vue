@@ -43,7 +43,7 @@ const userInfo = ref({})
 const router = useRouter()
 const route = useRoute()
 const loadUserInfo = async (contactId: string) => {
-    const res = await UserContactControllerService.getContactUserInfoUsingGet1(contactId)
+    const res = await UserContactControllerService.getContactUserInfoUsingGet(contactId)
     if (res.code === 0) {
         userInfo.value = res.data
     } else {
@@ -56,7 +56,7 @@ const addContactToBlackList = async () => {
     proxy.Confirm({
         message: "确认要将用户加入黑名单吗？该过程不可逆",
         okfun: async () => {
-            const res = await UserContactControllerService.blackContactUsingPost1({
+            const res = await UserContactControllerService.blackContactUsingPost({
                 contactId: userInfo.value.id
             })
             if (res.code === 0) {
@@ -76,7 +76,7 @@ const delContact = async () => {
     proxy.Confirm({
         message: "确认要删除该联系人吗？",
         okfun: async () => {
-            const res = await UserContactControllerService.delContactUsingPost1({
+            const res = await UserContactControllerService.delContactUsingPost({
                 contactId: userInfo.value.id
             })
             if (res.code === 0) {

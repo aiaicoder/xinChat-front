@@ -93,7 +93,8 @@ import SearchAdd from "@/views/contact/SearchAdd.vue";
 import ChatMessageModel from "@/db/ChatMessageModel";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import {getFileType} from "@/constant/FileType";
-
+import {SystemSettingStore} from "@/stores/SysSettingStore";
+const sysSetting = SystemSettingStore()
 const activeEmoji = ref('笑脸');
 const msgContent = ref(''); //消息内容
 const {proxy} = getCurrentInstance()
@@ -128,7 +129,6 @@ const sendMessage = (e) => {
         return
     }
     sendMessageDo({messageContent, messageType: 2}, true, null)
-
 };
 //添加好友
 const searchAddRef = ref();
@@ -165,6 +165,11 @@ const uploadFileDo = (file) => {
 
 }
 
+
+const uploadExceed = (files) => {
+    checkFileLimit(files)
+}
+
 //展示表情
 const showEmojiPopoverHandler = () => {
     showEmojiPopover.value = !showEmojiPopover.value;
@@ -198,10 +203,13 @@ const sendMessageDo = async (messageObj: Object = {
         proxy.Confirm({message: `${messageObj.fileName}是一个空文件无法发送,请重新选择`, showCancelButton: false,})
         return
     }
+    if (!checkFile(messageObj.fileType,messageObj.fileSize,messageObj.fileName)){
+        return;
+    }
     messageObj.sessionId = props.currentChatSession.sessionId;
     messageObj.sendUserId = useLogin.loginUser.id;
     messageObj.contactId = props.currentChatSession.contactId;
-    const res = await ChatControllerService.sendMessageUsingPost1(messageObj)
+    const res = await ChatControllerService.sendMessageUsingPost(messageObj)
     if (!res) {
         return
     }
@@ -230,13 +238,15 @@ const sendMessageDo = async (messageObj: Object = {
         }else {
             biz = 'file'
         }
-        const res = await ChatControllerService.uploadFileUsingPost2(file, biz, messageObj.messageId)
+        const res = await ChatControllerService.uploadFileUsingPost(file, biz, messageObj.messageId)
         if (res.code === 0){
             messageObj.status = 1;
-            messageObj.fileUrl = res.data;
+            messageObj.fileUrl = res.data.fileUrl;
+            if (res.data.videoCoverUrl){
+                messageObj.videoCoverUrl = res.data.videoCoverUrl;
+            }
         }
     }
-    console.log(messageObj)
     // 会话更新列表
     await ChatSessionModel.update(messageObj, props.currentChatSession.sessionId)
     //保存消息到本地
@@ -244,7 +254,56 @@ const sendMessageDo = async (messageObj: Object = {
     emit('reloadMsg', res.data.messageId)
 }
 
+//校验文件大小
+const checkFile = (fileType,fileSize,fileName) =>{
+    const SIZE_MB = 1024 * 1024;
+    const settingArray = Object.values(sysSetting.sysSetting)
+    const fileSizeNumber = settingArray[fileType]
+    if (fileSize > fileSizeNumber * SIZE_MB){
+        proxy.Confirm({
+            message: `${fileName}超过大小${fileSizeNumber}MB限制`,
+            showCancelButton: false,
+        })
+        return false
+    }
+    return true;
+}
 
+//发送文件数量
+const fileLimit = 10
+const checkFileLimit = (files) =>{
+    if (files.length > fileLimit){
+        console.log(files)
+        proxy.Confirm({
+            message: `最多只能选择${fileLimit}个文件`,
+            showCancelButton: false,
+        })
+        return
+    }
+    return true
+}
+
+
+//拖入文件
+const dragOverHandler = (e) => {
+    e.preventDefault()
+}
+
+const dropHandler = (e) => {
+    e.preventDefault()
+    const files  = e.dataTransfer.files
+    if (!checkFileLimit(files)){
+        return;
+    }
+    for (let i = 0; i < files.length; i++) {
+        uploadFileDo(files[i])
+    }
+}
+
+const pasteFile = async (event) =>{
+    let item = event.clipboardData && event.clipboardData.items;
+    console.log(item)
+}
 </script>
 
 <style lang="scss" scoped>

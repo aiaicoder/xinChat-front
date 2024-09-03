@@ -4,6 +4,5 @@
 /* eslint-disable */
 export type ContactDelRequest = {
     contactId?: string;
-    userId?: string;
 };
 

@@ -62,7 +62,7 @@ const loadApply = async () => {
     if (current > total) {
         return;
     }
-    const res = await UserContactControllerService.loadApplyAddUsingPost1({
+    const res = await UserContactControllerService.loadApplyAddUsingPost({
         receiveUserId: useLogin.loginUser.id,
     })
     if (res.code !== 0) {
@@ -80,7 +80,7 @@ const dealwithApply = (applyId: Number, contactType: number, status: number) => 
         message: '确定要执行操作吗？',
         okfun: async () => {
             contactStore.setContactReload(null)
-            const res = await UserContactControllerService.dealWithApplyUsingPost1({
+            const res = await UserContactControllerService.dealWithApplyUsingPost({
                 applyId: applyId,
                 status: status
             })

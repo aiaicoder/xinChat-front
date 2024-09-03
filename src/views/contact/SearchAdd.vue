@@ -59,7 +59,7 @@ const rules = reactive({})
 
 const emit = defineEmits(['reload'])
 const submitApply = async () => {
-    const res = await UserContactControllerService.applyAddUsingPost1(formData.value)
+    const res = await UserContactControllerService.applyAddUsingPost(formData.value)
     if (res.code === 0 && res.data === 0) {
         ElMessage({
             message: "添加成功",

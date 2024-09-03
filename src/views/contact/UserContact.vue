@@ -157,7 +157,7 @@ const loadContact = async (contactType: String) => {
         userId: loginUse.loginUser.id,
         contactType: contactType,
     }
-    const result = await UserContactControllerService.loadContactUsingPost1(loadUserContact)
+    const result = await UserContactControllerService.loadContactUsingPost(loadUserContact)
     if (result.code !== 0) {
         return;
     }
@@ -170,7 +170,7 @@ const loadContact = async (contactType: String) => {
 }
 
 const loadMyGroup = async () => {
-    const result = await GroupInfoControllerService.loadMyGroupUsingPost1()
+    const result = await GroupInfoControllerService.loadMyGroupUsingPost()
     if (result.code === 0) {
         partList.value[1].contactData = result.data;
     } else {

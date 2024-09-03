@@ -17,7 +17,7 @@ export class AdminUserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static addUserUsingPost3(
+    public static addUserUsingPost1(
         userAddRequest: UserAddRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -37,7 +37,7 @@ export class AdminUserControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getUserByIdUsingGet1(
+    public static getUserByIdUsingGet(
         id?: number,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -59,7 +59,7 @@ export class AdminUserControllerService {
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static getUserVoByIdUsingGet1(
+    public static getUserVoByIdUsingGet(
         id?: number,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -76,28 +76,12 @@ export class AdminUserControllerService {
         });
     }
     /**
-     * getSysSetting
-     * @returns BaseResponse OK
-     * @throws ApiError
-     */
-    public static getSysSettingUsingGet3(): CancelablePromise<BaseResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/admin/user/getSysSetting',
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
      * forceKickOut
      * @param userId userId
      * @returns BaseResponse OK
      * @throws ApiError
      */
-    public static forceKickOutUsingGet1(
+    public static forceKickOutUsingGet(
         userId?: string,
     ): CancelablePromise<BaseResponse> {
         return __request(OpenAPI, {
@@ -120,7 +104,7 @@ export class AdminUserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static listUserByPageUsingPost1(
+    public static listUserByPageUsingPost(
         userQueryRequest: UserQueryRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {
@@ -141,7 +125,7 @@ export class AdminUserControllerService {
      * @returns any Created
      * @throws ApiError
      */
-    public static updateUserStatusUsingPost1(
+    public static updateUserStatusUsingPost(
         userUpdateRequest: AdminUserUpdateRequest,
     ): CancelablePromise<BaseResponse | any> {
         return __request(OpenAPI, {

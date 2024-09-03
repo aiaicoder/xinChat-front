@@ -22,7 +22,6 @@ const props = defineProps({
 const print = () => {
     console.log(props.data)
 }
-print()
 </script>
 
 <style scoped>
