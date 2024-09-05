@@ -49,7 +49,6 @@ import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
-import {ElMessage} from "element-plus";
 import router from "@/router";
 
 const loginStore = useLoginUserStore()
@@ -57,6 +56,8 @@ const activeIndex = ref('/chat')
 const highLight = (path) => {
     activeIndex.value = path
 }
+
+
 const toSetting = () => {
     router.push('/setting')
 }
@@ -65,6 +66,7 @@ const toSetting = () => {
 const showSubRoutes = computed(() => {
     return showRoutes.value.flatMap(route => route.children || []);
 });
+
 
 const showRoutes = computed(() => {
     return routes.filter((route) => {
@@ -82,14 +84,6 @@ const showRoutes = computed(() => {
     });
 });
 
-const logout = async () => {
-    await loginStore.logout();
-    ElMessage({
-        message: "登出成功",
-        type: 'success',
-    })
-    location.reload();
-};
 
 </script>
 

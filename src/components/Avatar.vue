@@ -82,7 +82,10 @@ const hidePopover = () => {
 const showUserInfoPopoverHandler = () => {
     showUserInfo.value = !showUserInfo.value;
 }
-
+const print = () => {
+    console.log(props.avatar)
+}
+print()
 const closePopover = () => {
     document.removeEventListener('click', hidePopover,false )
 }
