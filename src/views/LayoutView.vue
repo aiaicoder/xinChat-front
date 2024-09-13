@@ -11,7 +11,10 @@
                         <el-menu-item v-for="subItem in showSubRoutes" :key="subItem.path" :index="subItem.path"
                                       @click="highLight(subItem.path)">
                             <el-icon>
-                                <Component :is="subItem.meta.icon"></Component>
+                                <Component :is="subItem.meta.icon">
+                                </Component>
+                                <Badge :count="messageStore.contactApplyCount" v-if="subItem.meta.icon === 'UserFilled'" top="-10" :left="20"></Badge>
+                                <Badge :count="messageStore.chatCount" v-if="subItem.meta.icon === 'ChatDotRound'" top="-10" :left="20"></Badge>
                             </el-icon>
                         </el-menu-item>
                         <div class="user-info">
@@ -50,7 +53,9 @@ import checkAccess from "@/access/checkAccess";
 import {computed, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import router from "@/router";
-
+import Badge from "@/components/Badge.vue";
+import {useMessageCountStore} from "@/stores/MessageCountStore";
+const messageStore = useMessageCountStore()
 const loginStore = useLoginUserStore()
 const activeIndex = ref('/chat')
 const highLight = (path) => {
@@ -114,7 +119,7 @@ const showRoutes = computed(() => {
   position: fixed;
 }
 
-.right-container{
-    width: 100%;
+.right-container {
+  width: 100%;
 }
 </style>

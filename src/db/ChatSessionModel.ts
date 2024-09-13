@@ -12,7 +12,6 @@ const request = indexedDB.open(dbName, 2); // 版本号为2
 request.onupgradeneeded = function (event) {
     // @ts-ignore
     const db = event.target.result;
-    console.log("Database created or opened successfully.sessions")
     if (!db.objectStoreNames.contains(sessionsStoreName)) {
         const objectStore = db.createObjectStore(sessionsStoreName, {keyPath: "sessionId", autoIncrement: false});
         objectStore.createIndex("userContactIndex", ["userId", "contactId"], {unique: false});
@@ -64,6 +63,23 @@ async function saveChatSessions(session: Object[]): Promise<void> {
     });
 }
 
+async function updateSessions(newSessions: Object[]): Promise<void> {
+    if (!db) {
+        throw new Error("Database is not open.");
+    }
+    // 获取所有现有会话
+    const existingSessions = await getAllSessions();
+    // 过滤出需要更新的会话
+    const sessionsToUpdate = newSessions.filter((newSession) => {
+        // @ts-ignore
+        const existingSession = existingSessions.find(s => s.sessionId === newSession.sessionId);
+        // @ts-ignore
+        return existingSession && existingSession.status === 1;
+    });
+
+    // 调用 saveChatSessions 进行更新
+    await saveChatSessions(sessionsToUpdate);
+}
 
 async function saveChatSession(session: Object): Promise<void> {
     if (!db) {
@@ -89,6 +105,8 @@ async function saveChatSession(session: Object): Promise<void> {
         transaction.onerror = (event: Event) => reject((event.target as IDBTransaction).error);
     });
 }
+
+
 
 
 async function getAllSessions(): Promise<Object[]> {
@@ -128,7 +146,6 @@ async function getSessionByUserIdAndContactId(contactId: string): Promise<Object
     const objectStore = transaction.objectStore(sessionsStoreName);
     const index = objectStore.index("userContactIndex");
     const userId = useLogin.loginUser.id;
-
     return new Promise((resolve, reject) => {
         const cursorRequest = index.openCursor(IDBKeyRange.only([userId, contactId])); // 使用索引进行查询
         // @ts-ignore
@@ -158,7 +175,7 @@ async function updateNoReadCount(contactId: string, noReadCount: number): Promis
         return;
     }
     //@ts-ignore
-    session.noReadCount += noReadCount; // 更新 noReadCount
+    session.noReadCount = noReadCount; // 更新 noReadCount
     // 保存更新后的会话
     await saveChatSession(session);
     console.log("Session updated successfully.");
@@ -187,7 +204,6 @@ async function clearNoReadCount(sessionId: string): Promise<void> {
     session.noReadCount = 0; // 更新 noReadCount
     // 保存更新后的会话
     await saveChatSession(session);
-    console.log("Session updated successfully.");
 }
 
 //更新会话状态
@@ -200,7 +216,8 @@ async function update(item: Object, currentSessionId: string): Promise<void> {
     const oldSession = await getSessionBySessionId(item.sessionId);
     // 检查是否获取到了会话信息
     if (!oldSession) {
-        throw new Error("Session not found.");
+        await saveChatSession(item);
+        return
     }
     // 更新会话信息
     //@ts-ignore
@@ -209,9 +226,9 @@ async function update(item: Object, currentSessionId: string): Promise<void> {
         oldSession.lastMessage = item.lastMessage;
     }
     //@ts-ignore
-    if (item.lastMessageTime) {
+    if (item.lastReceiveTime) {
         //@ts-ignore
-        oldSession.lastMessageTime = item.lastMessageTime;
+        oldSession.lastReceiveTime = item.lastReceiveTime;
     }
     //@ts-ignore
     if (item.contactName) {
@@ -219,7 +236,7 @@ async function update(item: Object, currentSessionId: string): Promise<void> {
         oldSession.contactName = item.contactName;
     }
     //@ts-ignore
-    if (item.memberCount != null) {
+    if (item.memberCount != 0) {
         //@ts-ignore
         oldSession.memberCount = item.memberCount;
     }
@@ -231,7 +248,6 @@ async function update(item: Object, currentSessionId: string): Promise<void> {
     }
     // 保存更新后的会话
     await saveChatSession(oldSession);
-    console.log("Session updated successfully.");
 }
 
 
@@ -244,17 +260,53 @@ async function updateAll(item: Object): Promise<void> {
     item = JSON.parse(normalString)
     // 保存更新后的会话
     await saveChatSession(item);
-    console.log("Session updated successfully.");
+}
+
+async function deleteChatSessionLogical(contactId: string): Promise<void> {
+    const chatSessionsByContactId =  await getSessionByUserIdAndContactId(contactId);
+    // @ts-ignore
+    chatSessionsByContactId.status = 0
+    // @ts-ignore
+    await saveChatSession(chatSessionsByContactId);
+}
+
+async function updateGroupName(contactId: string ,groupName: string): Promise<void> {
+    const groupSession = await getSessionByUserIdAndContactId(contactId)
+    if (groupSession) {
+        //@ts-ignore
+        groupSession.contactName = groupName
+        //@ts-ignore
+        await saveChatSession(groupSession)
+    }
+}
+
+async function clearAll(): Promise<void> {
+    //清除会话信息
+    const transaction = db.transaction([sessionsStoreName], "readwrite");
+    const objectStore = transaction.objectStore(sessionsStoreName);
+
+    //清除消息
+    const transactionMsg = db.transaction([messagesStoreName], "readwrite");
+    const objectStoreMsg = transactionMsg.objectStore(messagesStoreName);
+    //清除用户信息
+    const transactionUser = db.transaction([uerStoreName], "readwrite");
+    const objectStoreUser = transactionUser.objectStore(uerStoreName);
+    const requestUser = objectStoreUser.clear()
+    const requestMsg = objectStoreMsg.clear()
+    const request = objectStore.clear()
 }
 
 
 export default {
-    saveChatSessions,
     getAllSessions,
     getSessionByUserIdAndContactId,
     saveChatSession,
     clearNoReadCount,
     updateAll,
     update,
-    updateNoReadCount
+    updateNoReadCount,
+    updateSessions,
+    deleteChatSessionLogical,
+    updateGroupName,
+    clearAll,
 }

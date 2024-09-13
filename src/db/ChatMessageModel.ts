@@ -26,6 +26,7 @@ async function saveChatMessages(message: Object[]): Promise<void> {
     const transaction = db.transaction([storeName], "readwrite");
     const objectStore = transaction.objectStore(storeName);
     const chatSessionCountMap = {};
+    // debugger
     message.forEach((msg) => {
         //@ts-ignore
         const contactId = msg.contactType == 1 ? msg.contactId : msg.sendUserId;
@@ -38,14 +39,13 @@ async function saveChatMessages(message: Object[]): Promise<void> {
             // @ts-ignore
             chatSessionCountMap[contactId] = noReadCount + 1;
         }
-        objectStore.put(msg); // 使用 put 方法
+        objectStore.put(msg)
     });
     for (const item in chatSessionCountMap) {
         // @ts-ignore
         const noReadCount = chatSessionCountMap[item]
         await ChatSessionModel.updateNoReadCount(item, noReadCount);
     }
-
     return new Promise((resolve, reject) => {
         transaction.oncomplete = () => resolve(); // 移除 Event 参数
         transaction.onerror = (event: Event) => reject((event.target as IDBTransaction).error);
@@ -77,6 +77,14 @@ async function getAllMessages(): Promise<Object[]> {
     });
 }
 
+
+async function addUnreadMessage(message: Object[]): Promise<void> {
+    const allMessages = await getAllMessages();
+    // 找出 message 数组中不存在于 allMessages 的消息
+    // @ts-ignore
+    const newMessages = message.filter(msg => !allMessages.some(existingMsg => existingMsg.messageId === msg.messageId));
+    await saveChatMessages(newMessages);
+}
 
 async function getMessageById(messageId: string): Promise<Object> {
     const transaction = db.transaction([storeName], "readonly");
@@ -163,9 +171,13 @@ async function updateMessage(message: Object): Promise<void> {
 }
 
 
+
+
+
 export default {
     saveChatMessages,
     getAllMessages,
+    addUnreadMessage,
     getMessageById,
     saveChatMessage,
     getChatMessage,

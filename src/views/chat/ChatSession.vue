@@ -1,6 +1,7 @@
 <template>
     <div :class="['chat-session-item',currentSession ? 'active' : '']">
         <div class="contact-tag" v-if="data.contactType == 1">群</div>
+        <Badge :count="data.noReadCount" :top="2" :left="42"></Badge>
         <AvatarBase :avatar="data.avatar"></AvatarBase>
         <div class="user-info">
             <div class="user-name-panel">
@@ -16,6 +17,7 @@
 <script setup lang="ts">
 import AvatarBase from "@/components/AvatarBase.vue";
 import Utils from "../../utils/Utils";
+import Badge from "@/components/Badge.vue";
 
 const props = defineProps({
     data: {
@@ -27,8 +29,13 @@ const props = defineProps({
         type: Boolean,
         default: false
     }
+
 })
 
+// const print = () =>{
+//     console.log(props.data)
+// }
+// print()
 </script>
 
 <style lang="scss" scoped>

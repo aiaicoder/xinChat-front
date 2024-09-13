@@ -40,13 +40,13 @@
                         </template>
                         <!--展示系统消息-->
                         <template
-                                v-if="data.messageType == 3
-                            || data.messageType == 1
-                            || data.messageType == 9
-                            || data.messageType == 8
-                            || data.messageType == 11
-                            || data.messageType == 12
-                            || data.messageType == 13
+                                v-if="data.messageType == 3 // 群创建
+                            || data.messageType == 1 //打着招呼消息
+                            || data.messageType == 9 //加入群组
+                            || data.messageType == 8 //解散
+                            || data.messageType == 11 //退出
+                            || data.messageType == 12 //被踢
+                            || data.messageType == 13 //撤回
 "
                         >
                             <ChatMessageSys :data="data"></ChatMessageSys>
@@ -63,7 +63,7 @@
             </div>
         </template>
     </layout>
-    <ChatGroupDetail ref="chatGroupDetailRef"></ChatGroupDetail>
+    <ChatGroupDetail ref="chatGroupDetailRef" @deleteSession="deleteChatSessionList"></ChatGroupDetail>
 </template>
 
 <script setup lang="ts">
@@ -82,20 +82,32 @@ import {SystemSettingStore} from "@/stores/SysSettingStore";
 import ChatMessageTime from "@/views/chat/ChatMessageTime.vue";
 import ChatMessageSys from "@/views/chat/ChatMessageSys.vue";
 import ChatGroupDetail from "@/views/chat/ChatGroupDetail.vue";
+import userSettingModel from "@/db/UserSettingModel";
+import {useLoginUserStore} from "@/stores/UseLoginUserStore";
+import {useMessageCountStore} from "@/stores/MessageCountStore";
+import router from "@/router";
+import {ElMessage} from "element-plus";
+import wsClient from "@/webSocket/wsClient";
 
+const login = useLoginUserStore()
 const {proxy} = getCurrentInstance()
 const searchKey = ref("");
 const sysSetting = SystemSettingStore()
+const messageStore = useMessageCountStore()
 const search = () => {
 }
 
 const chatSessionList = ref([])
-const onLoadSessionData = () => {
-    const result = ChatSessionModel.getAllSessions()
-    result.then((res) => {
-        sortChatSession(res)
-        chatSessionList.value = res
+const onLoadSessionData = async () => {
+    const res = await ChatSessionModel.getAllSessions()
+    console.log(res)
+    let noReadCount = 0
+    res.forEach(item => {
+        noReadCount = noReadCount + item.noReadCount
     })
+    messageStore.setChatCount(noReadCount,true)
+    sortChatSession(res)
+    chatSessionList.value = res
 }
 const messagePanel = ref()
 //底部距离
@@ -103,7 +115,7 @@ let distanceToBottom = 0;
 //滚动到底部
 const goToBottom = () => {
     nextTick(() => {
-        if (distanceToBottom > 200){
+        if (distanceToBottom > 200) {
             return
         }
         const content = messagePanel.value;
@@ -116,6 +128,7 @@ const goToBottom = () => {
 
 //对会话进行排序
 const sortChatSession = (dataList: Object[]) => {
+    console.log(dataList)
     dataList.sort((a, b) => {
         const topTypeResult = b["topType"] - a["topType"]
         if (topTypeResult == 0) {
@@ -158,6 +171,8 @@ const ChatSessionClickHandle = (item) => {
     messageCountInfo.nodata = false
     messageCountInfo.maxMessageId = null;
     messageList.value = []
+    messageStore.setChatCount(-item.noReadCount,true);
+    item.noReadCount = 0;
     ChatSessionModel.clearNoReadCount(currentChatSession.value.sessionId)
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     loadChatMessage()
@@ -169,7 +184,6 @@ const loadChatMessage = async () => {
         return
     }
     messageCountInfo.pageNo++
-    console.log("加载消息")
     //@ts-ignore
     await chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
         if (res.messageCount == res.currentPage) {
@@ -190,13 +204,13 @@ const loadChatMessage = async () => {
             //@ts-ignore
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
             goToBottom()
-        }else {
+        } else {
             //当前分页不为1的时候，向上滚动的时候会将滚动条限制到上一个分页的消息处
-            nextTick(() =>{
-                console.log("message" + lastMessage.messageId)
+            nextTick(() => {
                 document.querySelector("#message" + lastMessage.messageId)?.scrollIntoView()
             })
         }
+        console.log(messageList.value)
     }).catch((err) => {
         console.log(err, "出错")
     })
@@ -249,6 +263,7 @@ const oncontextmenu = (item, e) => {
                             message: `确定删除该聊天【${item.contactName}】吗？`,
                             okfun: () => {
                                 deleteSession(item)
+                                router.push('/')
                             }
                         }
                     )
@@ -271,11 +286,54 @@ const getSystemSetting = async () => {
     sysSetting.setSysSetting(res.data)
 }
 
+//加载好友申请
+const loadContactApply = async () => {
+    // debugger
+    const result = await userSettingModel.getUserSetting(login.loginUser.id)
+    if (result != null) {
+        //@ts-ignore
+        messageStore.setContactApplyCount(result.noReadCount, true);
+    }
+}
+//群详情实现
+const chatGroupDetailRef = ref(null)
+const showGroupDetail = () => {
+    chatGroupDetailRef.value.show(currentChatSession.value.contactId)
+}
+
 onMounted(() => {
     onLoadSessionData()
     getSystemSetting()
+    loadContactApply()
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     EventBus.on("reloadMessage", (message) => {
+        //好友申请消息
+        if (message.messageType == 4) {
+            loadContactApply()
+            return
+        }
+        //强制下线
+        if (message.messageType == 7) {
+            proxy.Confirm({
+                message: "您已被强制下线，请重新登录",
+                okfun: () => {
+                   setTimeout(() => {
+                       wsClient.closeWs()
+                       router.push('/user/login')
+                   },200)
+                },
+                showCancelBtn: false
+            })
+        }
+        //更改群名称
+        if (message.messageType === 10){
+            let curSession = chatSessionList.value.find(item => {
+                return item.contactId == message.contactId
+            })
+            curSession.contactName = message.extendData
+            return;
+        }
+        //文件消息
         if (message.messageType == 6) {
             const localMessage = messageList.value.find(item => {
                 if (item.messageId == message.messageId) {
@@ -293,6 +351,7 @@ onMounted(() => {
             return item.sessionId == message.sessionId
         })
         if (curSession == null) {
+            console.log(message.extendData, "消息体")
             chatSessionList.value.push(message.extendData)
         } else {
             Object.assign(curSession, message.extendData)
@@ -300,7 +359,7 @@ onMounted(() => {
         sortChatSession(chatSessionList.value)
         if (message.sessionId != currentChatSession.value.sessionId) {
             console.log(message.sessionId != currentChatSession.value.sessionId)
-            //todo 未读消息气泡
+            messageStore.setChatCount(1,false);
         } else {
             // console.log(messageList.value)
             Object.assign(currentChatSession.value, message.extendData)
@@ -308,9 +367,9 @@ onMounted(() => {
             goToBottom()
         }
     })
-    nextTick(() =>{
+    nextTick(() => {
         const content = messagePanel.value;
-        content.addEventListener('scroll', (e) =>{
+        content.addEventListener('scroll', (e) => {
             const scrollTop = e.target.scrollTop;
             //计算到底部的距离
             distanceToBottom = content.scrollHeight - content.clientHeight - scrollTop;
@@ -320,12 +379,6 @@ onMounted(() => {
         })
     })
 })
-
-//群详情实现
-const chatGroupDetailRef = ref(null)
-const showGroupDetail = () => {
-    chatGroupDetailRef.value.show(currentChatSession.value.contactId)
-}
 </script>
 
 <style scoped>

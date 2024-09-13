@@ -14,7 +14,7 @@
                             <div class="nick-name">添加</div>
                         </div>
                         <div class="member-item" @click="removerUser">
-                            <div class="iconfont icon-add icon-op"></div>
+                            <div class="iconfont icon-min icon-op"></div>
                             <div class="nick-name">移除</div>
                         </div>
                     </template>
@@ -22,18 +22,18 @@
                 <div class="line"></div>
                 <div class="part-content">
                     <AvatarBase
-                        :avatar="groupInfo.groupAvatar"
-                        :width="60"
-                        :show-detail="true"
-                        :border-radius="5"
+                            :avatar="groupInfo.groupAvatar"
+                            :width="60"
+                            :show-detail="true"
+                            :border-radius="5"
                     ></AvatarBase>
                 </div>
                 <div class="part-tile">群号</div>
-                <div class="part-content">{{groupInfo.gourpId}}</div>
+                <div class="part-content">{{ groupInfo.groupId }}</div>
                 <div class="part-tile">群聊名称</div>
-                <div class="part-content">{{groupInfo.groupName}}</div>
+                <div class="part-content">{{ groupInfo.groupName }}</div>
                 <div class="part-tile">群公告</div>
-                <div class="part-content">{{groupInfo.groupNotice || '-'}}</div>
+                <div class="part-content">{{ groupInfo.groupNotice || '-' }}</div>
                 <div class="line"></div>
                 <a href="javascript:void(0);"
                    class="leave-btn"
@@ -46,31 +46,36 @@
                    v-else
                 >退出群聊</a>
             </div>
-
         </el-drawer>
+        <UserSelect ref="UserSelectRef" @call-back="addOrRemoveGroupMemberCallBack"></UserSelect>
     </div>
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
-import {GroupInfoControllerService} from "../../../generated";
+import {getCurrentInstance, ref} from "vue";
+import {GroupInfoControllerService, UserContactControllerService} from "../../../generated";
 import {ElMessage} from "element-plus";
 import Avatar from "@/components/Avatar.vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import AvatarBase from "@/components/AvatarBase.vue";
+import UserSelect from "@/views/chat/UserSelect.vue";
+import ChatSessionModel from "@/db/ChatSessionModel";
+import router from "@/router";
+
+const {proxy} = getCurrentInstance()
 const loginStore = useLoginUserStore()
 const showDrawer = ref(false);
 const memberList = ref([]);
 const groupInfo = ref({});
-const show =  async (groupId) =>{
+const show = async (groupId) => {
     let result = await GroupInfoControllerService.getGroupInfoChatUsingPost({
         groupId: groupId
     })
-    if (result.code === 0){
+    if (result.code === 0) {
         groupInfo.value = result.data.groupInfo;
         memberList.value = result.data.userContactList;
         showDrawer.value = true;
-    }else {
+    } else {
         ElMessage({
             message: result.message,
             type: 'error',
@@ -84,6 +89,79 @@ const drawerRef = ref(null);
 const closeDrawerHandler = () => {
     drawerRef.value.close();
 }
+
+const UserSelectRef = ref(null);
+const addUser = async () => {
+    let result = await UserContactControllerService.loadContactUsingPost({
+        userId: loginStore.loginUser.id,
+        contactType: 'USER',
+    })
+    if (result.code !== 0) {
+        return
+    }
+    const contactIds = memberList.value.map(item => item.userId)
+    let contactList = result.data.records
+    contactList.forEach(element => {
+        if (contactIds.includes(element.contactId)) {
+            element.disabled = true
+        }
+    })
+    UserSelectRef.value.show({contactList, groupId: groupInfo.value.groupId, opType: 1})
+}
+
+const removerUser = () => {
+    let contactList = memberList.value.map(item => item)
+    contactList.forEach(item => item.contactId = item.userId)
+    contactList.splice(0, 1)
+    UserSelectRef.value.show({contactList, groupId: groupInfo.value.groupId, opType: 0})
+}
+
+const emit = defineEmits(['deleteSession'])
+const leaveGroup = () => {
+    proxy.Confirm({
+        message: `确定要退出群聊【${groupInfo.value.groupName}】吗？`,
+        okfun: async () => {
+            let result = await GroupInfoControllerService.leaveGroupUsingPost(groupInfo.value.groupId)
+            if (result.code !== 0) {
+                ElMessage({
+                    message: '退出失败请重试',
+                    type: 'error',
+                })
+                return
+            }
+            await ChatSessionModel.deleteChatSessionLogical(groupInfo.value.groupId)
+            emit('deleteSession', groupInfo.value.groupId)
+            showDrawer.value = false;
+        }
+    })
+}
+
+const dissolutionGroup = () => {
+    proxy.Confirm({
+        message: `确定要解散群聊【${groupInfo.value.groupName}】吗？`,
+        okfun: async () => {
+            let result = await GroupInfoControllerService.dismissGroupUsingPost(groupInfo.value.groupId)
+            if (result.code !== 0) {
+                ElMessage({
+                    message: '解散失败请重试',
+                    type: 'error',
+                })
+                return
+            }
+            ElMessage({
+                message: '解散成功',
+                type: 'success',
+            })
+            showDrawer.value = false;
+        }
+    })
+}
+
+const addOrRemoveGroupMemberCallBack = () => {
+    showDrawer.value = false;
+}
+
+
 </script>
 
 <style lang="scss" scoped>

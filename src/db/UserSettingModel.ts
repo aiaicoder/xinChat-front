@@ -23,7 +23,7 @@ async function saveUserSetting(userInfo: Object): Promise<void> {
     const transaction = db.transaction([uerStoreName], "readwrite");
     const objectStore = transaction.objectStore(uerStoreName);
     objectStore.put(userInfo); // 使用 put 方法
-    if (!Reflect.has(userInfo, 'noReadCount')){
+    if (!Reflect.has(userInfo, 'noReadCount')) {
         // @ts-ignore
         userInfo.noReadCount = 0;
     }
@@ -34,8 +34,7 @@ async function saveUserSetting(userInfo: Object): Promise<void> {
 }
 
 
-
-async function getUserSetting(userId: string): Promise<Object[]> {
+async function getUserSetting(userId: string): Promise<Object> {
     const transaction = db.transaction(uerStoreName, 'readonly');
     const objectStore = transaction.objectStore(uerStoreName);
     return new Promise((resolve, reject) => {
@@ -45,7 +44,8 @@ async function getUserSetting(userId: string): Promise<Object[]> {
     });
 }
 
-async function updateNoReadCount(userId: string, noReadCount: number): Promise<void> {
+
+async function updateNoReadCount(userId: string, noReadCountValue: any, isAdd: boolean): Promise<void> {
     if (!db) {
         throw new Error("Database is not open.");
     }
@@ -53,26 +53,42 @@ async function updateNoReadCount(userId: string, noReadCount: number): Promise<v
     if (!userSetting) {
         return;
     }
-    if (noReadCount === 0){
-        return;
-    }
-    if (noReadCount) {
+    //@ts-ignore
+    if (!userSetting.noReadCount && isAdd) {
         //@ts-ignore
-        userSetting.noReadCount = noReadCount; // 更新 noReadCount
-        // 保存更新后的会话
+        userSetting.noReadCount += noReadCountValue;
         await saveUserSetting(userSetting);
     } else {
-        //清空未读条数
-        noReadCount = 0;
         //@ts-ignore
-        userSetting.noReadCount = noReadCount; // 更新 noReadCount
+        userSetting.noReadCount = noReadCountValue;
         await saveUserSetting(userSetting);
     }
-    console.log("Session updated successfully.");
+}
+
+
+
+async function removeNoReadCount(userId: string): Promise<void> {
+    if (!db) {
+        throw new Error("Database is not open.");
+    }
+    const userSetting = await getUserSetting(userId);
+    if (!userSetting) {
+        return;
+    }
+    //@ts-ignore
+    if (!userSetting.noReadCount) {
+        return
+    } else {
+        //@ts-ignore
+        userSetting.noReadCount = 0;
+        await saveUserSetting(userSetting);
+    }
+
 }
 
 export default {
     saveUserSetting,
     getUserSetting,
-    updateNoReadCount
+    updateNoReadCount,
+    removeNoReadCount
 }

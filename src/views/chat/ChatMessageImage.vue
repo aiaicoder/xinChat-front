@@ -1,5 +1,5 @@
 <template>
-    <ShowImage :avatar="data.fileUrl || data.filePath" part-type="chat"
+    <ShowImage :avatar="FileUrl()" part-type="chat"
                :file-type="data.fileType" :show-detail="showDetail"></ShowImage>
 </template>
 
@@ -19,9 +19,16 @@ const props = defineProps({
         default: false
     }
 })
-const print = () => {
-    console.log(props.data)
+const FileUrl = () => {
+    if (props.data.fileUrl) {
+        return props.data.fileUrl
+    } else if (props.data.filePath) {
+        return props.data.filePath
+    } else {
+        return props.data.messageContent
+    }
 }
+
 </script>
 
 <style scoped>

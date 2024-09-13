@@ -14,17 +14,20 @@
                     <div class="part-tile">{{ item.partName }}</div>
                     <div class="part-list">
                         <div
-                            v-for="(sub,index) in item.children" :key="index"
-                            :class="['part-item',sub.path == route.path ? 'active' : '']"
-                            @click="partJump(sub)"
+                                v-for="(sub,index) in item.children" :key="index"
+                                :class="['part-item',sub.path == route.path ? 'active' : '']"
+                                @click="partJump(sub)"
                         >
                             <div :class="['iconfont',sub.icon]" :style="{background: sub.iconBgColor}"></div>
                             <div class="text">{{ sub.name }}</div>
+                            <Badge v-if="sub.countKey" :count="messageStore.contactApplyCount" :top="3"
+                                   :left="45"></Badge>
                         </div>
                         <template v-for="(contact,index) in item.contactData" :key='index'>
                             <div :class="['part-item',contact[item.contactId] == route.query.contactId ? 'active' : '']"
                                  @click="contactDetail(contact,item)">
-                                <Avatar :avatar="contact[item.avatar]" :user-id="contact[item.contactId]" width="35" height="35" borderRadius="50%"
+                                <Avatar :avatar="contact[item.avatar]" :user-id="contact[item.contactId]" width="35"
+                                        height="35" borderRadius="50%"
                                         showDetail/>
                                 <div class="text">{{ contact[item.contactName] }}</div>
                             </div>
@@ -56,8 +59,11 @@ import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import Avatar from "@/components/Avatar.vue";
 import {ElMessage} from "element-plus";
 import {ContactSateStore} from "@/stores/ContactStateStore";
+import Badge from "@/components/Badge.vue";
+import {useMessageCountStore} from "@/stores/MessageCountStore";
+import UserSettingModel from "@/db/UserSettingModel";
 
-
+const messageStore = useMessageCountStore()
 const contactStore = ContactSateStore();
 const route = useRoute();
 const router = useRouter()
@@ -135,13 +141,18 @@ const partJump = (data: any) => {
         rightTile.value = null
     }
     //todo 处理联系人好友申请一读
-    console.log(data)
+    if (data.countKey) {
+        console.log(1111)
+        messageStore.setContactApplyCount(0, true)
+        UserSettingModel.removeNoReadCount(loginUse.loginUser.id)
+    }
+    // console.log(data)
     router.push(data.path)
 }
 const contactDetail = (contact: any, part: any) => {
-    if (part.showTitle){
+    if (part.showTitle) {
         rightTile.value = contact[part.contactName]
-    }else {
+    } else {
         rightTile.value = null
     }
     router.push({
@@ -211,6 +222,7 @@ onMounted(() => {
     loadContact('GROUP')
     loadContact('USER')
     loadMyGroup()
+    console.log(messageStore.contactApplyCount, "申请数")
 })
 </script>
 
@@ -236,6 +248,7 @@ onMounted(() => {
     height: calc(100vh - 70px);
     overflow: hidden;
     width: 250px;
+
     &:hover {
         overflow: auto;
     }

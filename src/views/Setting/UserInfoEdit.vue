@@ -97,7 +97,6 @@ const saveUserInfo = () => {
             ElMessage.error(res.message)
             return
         }
-        //todo 重新加载头像
         ElMessage.success('更新成功')
         formDataRef.value.resetFields()
         useLogin.setLoginUser(res.data);

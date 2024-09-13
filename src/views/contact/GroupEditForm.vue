@@ -101,6 +101,7 @@ const show = (data) => {
     ruleFormRef.value.resetFields()
     formData.value = Object.assign({}, data)
     formData.value.groupAvatar = data.groupAvatar
+    console.log(formData.value,"表单信息")
 }
 defineExpose({show})
 </script>

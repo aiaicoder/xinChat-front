@@ -3,10 +3,10 @@
         <div class="avatar-show">
             <template v-if="modeValue">
                 <el-image v-if="preview" :src="picUrl" fit="scale-down">
-
                 </el-image>
                 <ShowImage
-                        :avatar="picUrl"
+                        :avatar="picUrl ? picUrl : props.modeValue"
+                        :show-detail="false"
                         part-type="avatar"
                         :width="40"
                         v-else
@@ -53,10 +53,7 @@ const props = defineProps({
     }
 })
 const picUrl = ref('')
-if (props.modeValue) {
-    picUrl.value = props.modeValue
-}
-console.log(props.modeValue)
+
 const uploadImage = async (file) => {
     const res = await FileControllerService.uploadAvatarUsingPost(file.file, "user_avatar")
     if (res.code === 0) {

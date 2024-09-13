@@ -23,6 +23,9 @@ const initWs = (config: any) => {
     } else {
         wsUrl = BACKEND_HOST_PROD_WS + config.token;
     }
+    if (!config.token){
+        return
+    }
     maxReconnectTimes = 5;
     createWs();
 };
@@ -31,8 +34,9 @@ const createWs = () => {
     if (wsUrl === '') {
         return;
     }
-    ws = new WebSocket(wsUrl);
-
+    if (!ws || ws.readyState === WebSocket.CLOSED){
+        ws = new WebSocket(wsUrl);
+    }
     ws.onopen = () => {
         console.log('ws连接成功');
         ws?.send('heart beat');
@@ -49,26 +53,25 @@ const createWs = () => {
             }
         }, 5000);
     };
-
     // 从服务器接受到消息的回调函数
     ws.onmessage = (e) => {
         const useLogin = useLoginUserStore();
-        // console.log('收到服务端消息', e.data);
+        console.log('收到服务端消息', e.data);
         const message = JSON.parse(e.data);
         const messageType = message.messageType;
         switch (messageType) {
             case 0:
                 // 保存会话信息
-                ChatSessionModel.saveChatSessions(message.extendData.chatSessionList).then(() =>
-                    console.log('保存消息成功')
+                ChatSessionModel.updateSessions(message.extendData.chatSessionList).then(() => {
+                    }
                 );
                 // 更新聊天记录
-                chatMessageModel.saveChatMessages(message.extendData.chatMessageList).then(() =>
-                    console.log('消息保存成功')
+                chatMessageModel.addUnreadMessage(message.extendData.chatMessageList).then(() => {
+                    }
                 );
                 // 更新联系人申请数
-                userSettingModel.updateNoReadCount(useLogin.loginUser.id, message.extendData.applyCount).then(() =>
-                    console.log('联系人更新成功')
+                userSettingModel.updateNoReadCount(useLogin.loginUser.id, message.extendData.applyCount,false).then(() => {
+                    }
                 );
                 break;
             case 6:
@@ -76,8 +79,29 @@ const createWs = () => {
                     EventBus.emit('reloadMessage', message)
                 ))
                 break;
+            case 4://好友申请消息
+                userSettingModel.updateNoReadCount(useLogin.loginUser.id, 1,true).then(() => {
+                        EventBus.emit('reloadMessage', message)
+                    }
+                );
+                break;
+            case 10://修改群名称
+                ChatSessionModel.updateGroupName(message.contactId, message.extendData).then(() => {
+                    EventBus.emit('reloadMessage', message)
+                })
+                break
+            case 7://强制下线
+                closeWs();
+                EventBus.emit('reloadMessage', message)
+                break;
+            case 1:
+            case 8:
             case 2://聊天消息
             case 5://图片，视频消息
+            case 9: //好友群聊
+            case 11: // 提出群聊
+            case 12: // 退出群聊
+            case 3://创建群聊
                 if (message.sendUserId == useLogin.loginUser.id && message.contactType == 1) {
                     break;
                 }
@@ -94,25 +118,50 @@ const createWs = () => {
                     // @ts-ignore
                     sessionInfo.lastReceiveTime = message.sendTime;
                 }
+                //加入退出群聊
+                if (message.messageType == 9 || message.messageType == 11 || message.messageType == 12) {
+                    // @ts-ignore
+                    sessionInfo.memberCount = message.memberCount;
+                }
                 // @ts-ignore
                 ChatSessionModel.update(sessionInfo, localStorage.getItem('currentSessionId')).then(() =>
                     console.log('保存会话成功')
                 );
                 ChatMessageModel.saveChatMessage(message).then(() => {
-                    ChatSessionModel.getSessionByUserIdAndContactId(message.sendUserId).then(r => {
-                            // @ts-ignore
-                            if (r.status === 0) {
+                    console.log('保存消息成功', message);
+                    if (message.contactId.startsWith("G")) {
+                        ChatSessionModel.getSessionByUserIdAndContactId(message.contactId).then(r => {
                                 // @ts-ignore
-                                r.status = 1
-                                // @ts-ignore
-                                r.topType =0
-                                // @ts-ignore
-                                ChatSessionModel.saveChatSession(r).then()
+                                if (r.status === 0) {
+                                    // @ts-ignore
+                                    r.status = 1
+                                    // @ts-ignore
+                                    r.topType = 0
+                                    // @ts-ignore
+
+                                    ChatSessionModel.saveChatSession(r).then()
+                                }
+                                message.extendData = r
+                                EventBus.emit('reloadMessage', message)
                             }
-                            message.extendData = r
-                            EventBus.emit('reloadMessage', message)
-                        }
-                    );
+                        );
+                    } else {
+                        ChatSessionModel.getSessionByUserIdAndContactId(message.sendUserId).then(r => {
+                                // @ts-ignore
+                                if (r.status === 0) {
+                                    // @ts-ignore
+                                    r.status = 1
+                                    // @ts-ignore
+                                    r.topType = 0
+                                    // @ts-ignore
+                                    ChatSessionModel.saveChatSession(r).then()
+                                }
+                                message.extendData = r
+                                EventBus.emit('reloadMessage', message)
+                            }
+                        );
+                    }
+
                 });
                 break;
             // ... 其他 case

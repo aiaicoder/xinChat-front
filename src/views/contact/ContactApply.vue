@@ -1,13 +1,15 @@
 <template>
     <content-panel
             :infinite-scroll-immediate="false"
-            v-infinite-scroll="loadApply">
+            :show-top-bar="true"
+            v-infinite-scroll="loadApply"
+    >
         <div>
             <div class="apply-item" v-for="item in applyList" :key="item.id">
                 <div :class="['contact-type',item.contactType === 0 ? 'user-contact' : '']">
                     {{ item.contactType === 0 ? '用户' : '群聊' }}
                 </div>
-                <Avatar :width="50" :user-id="item.applyUserId"  :avatar="item.avatar"></Avatar>
+                <Avatar :width="50" :user-id="item.applyUserId" :avatar="item.avatar"></Avatar>
                 <div class="contact-info">
                     <div class="nick-name">{{ item.contactName }}</div>
                     <div class="apply-info">{{ item.applyInfo }}</div>
@@ -15,7 +17,7 @@
                 <div class="op-btn">
                     <div v-if="item.status === 0">
                         <el-dropdown placement="bottom-end" trigger="click">
-                        <span class="el-drop-link">
+                        <span class="el-dropdown-link">
                             <el-button type="primary" size="small">接受</el-button>
                         </span>
                             <template #dropdown>
@@ -37,18 +39,19 @@
         </div>
         <div v-if="applyList.length === 0" class="no-data">暂无新的申请</div>
     </content-panel>
-
 </template>
 
 <script setup lang="ts">
 import ContentPanel from "@/components/ContentPanel.vue";
 import {useRoute, useRouter} from "vue-router";
-import {getCurrentInstance, onMounted, ref} from "vue";
+import {getCurrentInstance, onMounted, ref, watch} from "vue";
 import {UserContactControllerService} from "../../../generated";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import Avatar from "@/components/Avatar.vue";
 import {ContactSateStore} from "@/stores/ContactStateStore";
+import {useMessageCountStore} from "@/stores/MessageCountStore";
 
+const messageStore = useMessageCountStore()
 const contactStore = ContactSateStore();
 const useLogin = useLoginUserStore()
 const {proxy} = getCurrentInstance()
@@ -72,7 +75,10 @@ const loadApply = async () => {
     if (res.data.current === 1) {
         applyList.value = []
     }
-    applyList.value = applyList.value.concat(res.data.records)
+    const uniqueRecords = res.data.records.filter(record =>
+        !applyList.value.some(existingRecord => existingRecord.applyId === record.applyId)
+    );
+    applyList.value = applyList.value.concat(uniqueRecords)
     current = res.data.current
 }
 const dealwithApply = (applyId: Number, contactType: number, status: number) => {
@@ -89,7 +95,7 @@ const dealwithApply = (applyId: Number, contactType: number, status: number) => 
             }
             current = 0;
             applyList.value = [];
-            loadApply()
+            await loadApply()
             if (contactType === 0 && status === 1) {
                 contactStore.setContactReload("USER")
             } else if (contactType === 1 && status === 1) {
@@ -98,7 +104,13 @@ const dealwithApply = (applyId: Number, contactType: number, status: number) => 
         }
     })
 }
-//todo 监听好友数量
+
+watch(() => messageStore.contactApplyCount, (newValue, oldValue) => {
+    if (newValue !== null) {
+        current = 1;
+        loadApply()
+    }
+})
 onMounted(() => {
     loadApply()
 })

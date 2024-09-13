@@ -187,7 +187,6 @@ const sendEmoji = (emoji) => {
     msgContent.value += emoji;
     showEmojiPopover.value = false;
 }
-
 const sendMessageDo = async (messageObj: Object = {
     messageContent,
     messageType,

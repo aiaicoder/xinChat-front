@@ -18,8 +18,6 @@ import {nextTick, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {ContactSateStore} from "@/stores/ContactStateStore";
 
-const contactStore = ContactSateStore();
-const loginUse = useLoginUserStore()
 const dialogConfig = ref({
     show: false,
     title: '修改群组',

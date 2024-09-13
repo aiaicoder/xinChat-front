@@ -56,7 +56,10 @@ const serverUrl = computed(() => {
     return props.avatar;
 })
 
-
+// const print = () => {
+//     console.log(props.avatar)
+// }
+// print()
 
 
 const dialogVideoVisible = ref(false);

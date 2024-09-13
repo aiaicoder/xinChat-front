@@ -5,6 +5,7 @@ import {UserControllerService} from "../../generated";
 import Access_Enum from "@/access/ACCESS_ENUM";
 import wsClient from "@/webSocket/wsClient";
 import {useRouter} from "vue-router";
+import ChatSessionModel from "@/db/ChatSessionModel";
 
 
 export const useLoginUserStore = defineStore('loginUser', () => {
@@ -23,7 +24,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
     async function fetchLoginUser() {
         const res = await UserControllerService.getLoginUserUsingGet()
         if (res.code == 0 && res.data) {
-            console.log("获取用户信息成功", res.data)
+            // console.log("获取用户信息成功", res.data)
             loginUser.value = res.data
         }
 
@@ -37,6 +38,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
                 userRole: Access_Enum.UnLogin,
             })
             wsClient.closeWs()
+            await ChatSessionModel.clearAll()
             router.push("/user/login")
         }
     }
@@ -45,6 +47,6 @@ export const useLoginUserStore = defineStore('loginUser', () => {
         loginUser.value = newLoginUser
     }
 
-    return {loginUser, fetchLoginUser, setLoginUser,logout}
+    return {loginUser, fetchLoginUser, setLoginUser, logout}
 
 })
