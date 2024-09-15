@@ -7,5 +7,7 @@ export type UserBeautyQuery = {
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
+    Id?: number;
+    Email?: string;
 };
 

@@ -9,7 +9,7 @@
                     </template>
                 </el-input>
             </div>
-            <div class="contact-list">
+            <div v-if="!searchKey" class="contact-list">
                 <template v-for="(item,index) in partList" :key="index">
                     <div class="part-tile">{{ item.partName }}</div>
                     <div class="part-list">
@@ -40,6 +40,13 @@
                     </div>
                 </template>
             </div>
+            <div class="search-list" v-show="searchKey">
+                <ContactSearchResult
+                        :data="item"
+                        v-for="item in searchList"
+                        @click="searchClickHandler(item)" :key="item.name">
+                </ContactSearchResult>
+            </div>
         </template>
         <template #right-content>
             <div class="title-panel drag">{{ rightTile }}</div>
@@ -62,6 +69,9 @@ import {ContactSateStore} from "@/stores/ContactStateStore";
 import Badge from "@/components/Badge.vue";
 import {useMessageCountStore} from "@/stores/MessageCountStore";
 import UserSettingModel from "@/db/UserSettingModel";
+import {all} from "axios";
+import SearchResult from "@/views/chat/SearchResult.vue";
+import ContactSearchResult from "@/views/contact/ContactSearchResult.vue";
 
 const messageStore = useMessageCountStore()
 const contactStore = ContactSateStore();
@@ -69,7 +79,7 @@ const route = useRoute();
 const router = useRouter()
 const rightTile = ref()
 const loginUse = useLoginUserStore()
-const searchKey = ref()
+
 const partList = ref([
     {
         partName: '新朋友',
@@ -131,9 +141,7 @@ const partList = ref([
         emptyMsg: '暂无好友',
     }
 ])
-const search = () => {
 
-}
 const partJump = (data: any) => {
     if (data.showTitle) {
         rightTile.value = data.name
@@ -189,6 +197,43 @@ const loadMyGroup = async () => {
     }
 }
 
+
+const searchKey = ref()
+const searchList = ref([])
+const search = () => {
+    if (!searchKey.value) {
+        return
+    }
+    searchList.value = []
+    let allContactList = []
+    const regex = new RegExp('(' + searchKey.value + ')', 'gi')
+    partList.value.forEach(item => {
+        if (item.contactData) {
+            allContactList = allContactList.concat(item.contactData)
+        }
+    })
+
+    allContactList.forEach(item => {
+        let contactName = item.groupName ? item.groupName : item.contactName
+        if (contactName.includes(searchKey.value)) {
+            let newData = Object.assign({}, item)
+            newData.serchContactName = newData.contactName.replace(regex, "<span class='highlight'>$1</span>")
+            newData.contactId = item.groupId || item.contactId
+            searchList.value.push(newData)
+        }
+    })
+}
+
+const searchClickHandler = (item) => {
+    searchKey.value = undefined
+    router.push({
+        path: "/chat",
+        query: {
+            chatId: item.contactId,
+            timestamp: new Date().getTime()
+        }
+    })
+}
 watch(() => contactStore.contactReload, (newVal, oldValue) => {
     if (!newVal) {
         return;

@@ -46,7 +46,7 @@ const dialogConfig = ref({
     buttons: [
         {
             type: 'primary',
-            text: '确定',
+            name: '确定',
             click: () => {
                 submitApply()
             }

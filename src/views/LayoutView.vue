@@ -13,8 +13,10 @@
                             <el-icon>
                                 <Component :is="subItem.meta.icon">
                                 </Component>
-                                <Badge :count="messageStore.contactApplyCount" v-if="subItem.meta.icon === 'UserFilled'" top="-10" :left="20"></Badge>
-                                <Badge :count="messageStore.chatCount" v-if="subItem.meta.icon === 'ChatDotRound'" top="-10" :left="20"></Badge>
+                                <Badge :count="messageStore.contactApplyCount" v-if="subItem.meta.icon === 'UserFilled'"
+                                       top="-10" :left="20"></Badge>
+                                <Badge :count="messageStore.chatCount" v-if="subItem.meta.icon === 'ChatDotRound'"
+                                       top="-10" :left="20"></Badge>
                             </el-icon>
                         </el-menu-item>
                         <div class="user-info">
@@ -50,14 +52,17 @@
 import {Edit} from '@element-plus/icons-vue'
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import router from "@/router";
 import Badge from "@/components/Badge.vue";
 import {useMessageCountStore} from "@/stores/MessageCountStore";
+import {useRoute} from "vue-router";
+
 const messageStore = useMessageCountStore()
 const loginStore = useLoginUserStore()
 const activeIndex = ref('/chat')
+const route = useRoute()
 const highLight = (path) => {
     activeIndex.value = path
 }
@@ -89,37 +94,46 @@ const showRoutes = computed(() => {
     });
 });
 
+watch(() => route.path, (newValue, oldValue) => {
+        highLight(newValue)
+    }, {
+        deep: true,
+        immediate: true
+    }
+)
+
 
 </script>
 
 <style lang="scss" scoped>
 #layout {
-  background: #ddd;
+  background: white;
   display: flex;
   overflow: hidden;
-}
-
-.left-side {
-  text-align: center;
-  align-items: center;
-}
+  .left-side {
+    text-align: center;
+    align-items: center;
+  }
 
 
-.sidebar-el-menu {
-  min-height: 100%;
-  height: 100vh;
-  position: relative;
+  .sidebar-el-menu {
+    min-height: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  //头像要居中要保持和父元素一样的宽度
+  .user-info {
+    width: 74px;
+    bottom: 0;
+    align-items: center;
+    position: fixed;
+  }
+
+  .right-container {
+    width: 100%;
+  }
 }
 
-//头像要居中要保持和父元素一样的宽度
-.user-info {
-  width: 74px;
-  bottom: 0;
-  align-items: center;
-  position: fixed;
-}
 
-.right-container {
-  width: 100%;
-}
 </style>

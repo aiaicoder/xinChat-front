@@ -102,10 +102,37 @@ export const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "/Regulate",
-                name: "管理",
+                path: "/Admin",
+                name: "管理员",
+                redirect:"/admin/userList",
                 // @ts-ignore
-                component: () => import("@/views/regulate/Regulate.vue"),
+                component: () => import("@/views/Admin/Admin.vue"),
+                children:[
+                    {
+                        path: "/admin/userList",
+                        name: "用户管理",
+                        // @ts-ignore
+                        component: () => import("@/views/Admin/UserList.vue"),
+                    },
+                    {
+                        path: "/admin/groupList",
+                        name: "群组管理",
+                        // @ts-ignore
+                        component: () => import("@/views/Admin/GroupList.vue"),
+                    },
+                    {
+                        path: "/admin/sysSetting",
+                        name: "系统设置",
+                        // @ts-ignore
+                        component: () => import("@/views/Admin/SysSetting.vue"),
+                    },
+                    {
+                        path: "/admin/beautyAccount",
+                        name: "靓号管理",
+                        // @ts-ignore
+                        component: () => import("@/views/Admin/BeautyAccount.vue"),
+                    },
+                ],
                 meta: {
                     access: ACCESS_ENUM.Admin,
                     icon: "Operation",

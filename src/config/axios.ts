@@ -26,7 +26,7 @@ let loading: any = null; //定义loading变量
 function startLoading() {
     loading = ElLoading.service({
         lock: true,
-        text: '加载中......',
+        name: '加载中......',
         background: 'rgba(0, 0, 0, 0.7)',
     });
     // loading最少显示时间（为了防止当请求立马响应页面会闪一下的情况）

@@ -6,6 +6,6 @@ export type UserBeautyAddRequest = {
     email?: string;
     id?: number;
     status?: number;
-    userid?: string;
+    userId?: string;
 };
 

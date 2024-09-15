@@ -69,6 +69,10 @@ async function updateSessions(newSessions: Object[]): Promise<void> {
     }
     // 获取所有现有会话
     const existingSessions = await getAllSessions();
+    if (existingSessions.length < 1) {
+        await saveChatSessions(newSessions);
+        return;
+    }
     // 过滤出需要更新的会话
     const sessionsToUpdate = newSessions.filter((newSession) => {
         // @ts-ignore
@@ -105,8 +109,6 @@ async function saveChatSession(session: Object): Promise<void> {
         transaction.onerror = (event: Event) => reject((event.target as IDBTransaction).error);
     });
 }
-
-
 
 
 async function getAllSessions(): Promise<Object[]> {
@@ -163,6 +165,15 @@ async function getSessionByUserIdAndContactId(contactId: string): Promise<Object
         };
         cursorRequest.onerror = () => reject(cursorRequest.error);
     });
+}
+
+async function ReloadChatSession(contactId: string): Promise<Object | void> {
+    const session = await getSessionByUserIdAndContactId(contactId);
+    // @ts-ignore
+    session.status = 1;
+    // @ts-ignore
+    await saveChatSession(session);
+    return session;
 }
 
 
@@ -263,14 +274,14 @@ async function updateAll(item: Object): Promise<void> {
 }
 
 async function deleteChatSessionLogical(contactId: string): Promise<void> {
-    const chatSessionsByContactId =  await getSessionByUserIdAndContactId(contactId);
+    const chatSessionsByContactId = await getSessionByUserIdAndContactId(contactId);
     // @ts-ignore
     chatSessionsByContactId.status = 0
     // @ts-ignore
     await saveChatSession(chatSessionsByContactId);
 }
 
-async function updateGroupName(contactId: string ,groupName: string): Promise<void> {
+async function updateGroupName(contactId: string, groupName: string): Promise<void> {
     const groupSession = await getSessionByUserIdAndContactId(contactId)
     if (groupSession) {
         //@ts-ignore
@@ -309,4 +320,5 @@ export default {
     deleteChatSessionLogical,
     updateGroupName,
     clearAll,
+    ReloadChatSession
 }

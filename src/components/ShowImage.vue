@@ -1,6 +1,6 @@
 <template>
     <div class="image-panel">
-        <el-image :src="serverUrl" fit="scale-down" :width="width" :preview-src-list="showDetail ? [serverUrl] : null">
+        <el-image :src="props.avatar" fit="scale-down" :width="width" :preview-src-list="showDetail ? [props.avatar] : null">
             <template #error>
                 <div class="iconfont icon-image-error"></div>
             </template>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import DPlayer from 'dplayer';
 
 const props = defineProps({
@@ -49,13 +49,6 @@ const props = defineProps({
     }
 })
 
-const serverUrl = computed(() => {
-    if (!props.avatar) {
-        return;
-    }
-    return props.avatar;
-})
-
 // const print = () => {
 //     console.log(props.avatar)
 // }
@@ -69,6 +62,7 @@ let dp = null; // 保存 DPlayer 实例
 // 初始化 DPlayer
 const initDPlayer = () => {
     const container = dplayerContainer.value;
+    console.log(props.videoUrl)
     dp = new DPlayer({
         container: container,
         video: {

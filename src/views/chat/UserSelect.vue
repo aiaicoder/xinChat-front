@@ -53,7 +53,7 @@ const dialogConfig = ref({
     show: false,
     buttons: [
         {
-            text: '确定',
+            name: '确定',
             type: 'primary',
             click: () => {
                 submitData()

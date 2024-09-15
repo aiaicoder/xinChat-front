@@ -27,8 +27,10 @@
     </div>
     <div class="message-content-other" v-else>
         <div class="user-avatar">
-            <Avatar v-if="currentChatSession.contactId.startsWith('G')" :width="35" :avatar="data.sendUserAvatar" :user-id="data.sendUserId"></Avatar>
-            <Avatar v-else :width="35" :avatar="currentChatSession.avatar" :user-id="currentChatSession.contactId"></Avatar>
+            <Avatar v-if="Object.keys(currentChatSession).length != 0 && currentChatSession.contactId.startsWith('G')"
+                    :width="35" :avatar="data.sendUserAvatar" :user-id="data.sendUserId"></Avatar>
+            <Avatar v-else :width="35" :avatar="currentChatSession.avatar"
+                    :user-id="currentChatSession.contactId"></Avatar>
         </div>
         <div :class="['content-panel',data.messageType == 5 ? 'content-panel-media' : '',data.messageType == 5 ? 'group-content' : '']">
             <div class="nick-name" v-if="data.contactType == 1">

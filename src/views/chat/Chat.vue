@@ -9,13 +9,16 @@
                     </template>
                 </el-input>
             </div>
-            <div class="chat-session-list">
+            <div class="chat-session-list" v-if="!searchKey">
                 <template v-for="item in chatSessionList" :key="item.userId">
                     <ChatSession :data="item" @click="ChatSessionClickHandle(item)"
                                  @contextmenu.stop="oncontextmenu(item,$event)"
                                  :current-session="item.contactId === currentChatSession.contactId"
                     ></ChatSession>
                 </template>
+            </div>
+            <div class="search-list" v-show="searchKey">
+                <SearchResult :data="item" v-for="item in searchList" @click="searchClickHandler(item)"></SearchResult>
             </div>
         </template>
         <template #right-content>
@@ -68,7 +71,7 @@
 
 <script setup lang="ts">
 import Layout from "@/components/Layout.vue";
-import {getCurrentInstance, nextTick, onMounted, ref} from "vue";
+import {getCurrentInstance, nextTick, onMounted, ref, watch} from "vue";
 import ChatSessionModel from "@/db/ChatSessionModel";
 import ChatSession from "@/views/chat/ChatSession.vue";
 import ContextMenu from "@imengyu/vue3-context-menu";
@@ -86,16 +89,17 @@ import userSettingModel from "@/db/UserSettingModel";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {useMessageCountStore} from "@/stores/MessageCountStore";
 import router from "@/router";
-import {ElMessage} from "element-plus";
 import wsClient from "@/webSocket/wsClient";
+import {useRoute} from "vue-router";
+import chatSessionModel from "@/db/ChatSessionModel";
+import {c} from "vite/dist/node/types.d-aGj9QkWt";
+import SearchResult from "@/views/chat/SearchResult.vue";
 
 const login = useLoginUserStore()
 const {proxy} = getCurrentInstance()
-const searchKey = ref("");
 const sysSetting = SystemSettingStore()
 const messageStore = useMessageCountStore()
-const search = () => {
-}
+const route = useRoute()
 
 const chatSessionList = ref([])
 const onLoadSessionData = async () => {
@@ -105,7 +109,7 @@ const onLoadSessionData = async () => {
     res.forEach(item => {
         noReadCount = noReadCount + item.noReadCount
     })
-    messageStore.setChatCount(noReadCount,true)
+    messageStore.setChatCount(noReadCount, true)
     sortChatSession(res)
     chatSessionList.value = res
 }
@@ -171,7 +175,7 @@ const ChatSessionClickHandle = (item) => {
     messageCountInfo.nodata = false
     messageCountInfo.maxMessageId = null;
     messageList.value = []
-    messageStore.setChatCount(-item.noReadCount,true);
+    messageStore.setChatCount(-item.noReadCount, true);
     item.noReadCount = 0;
     ChatSessionModel.clearNoReadCount(currentChatSession.value.sessionId)
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
@@ -263,7 +267,8 @@ const oncontextmenu = (item, e) => {
                             message: `确定删除该聊天【${item.contactName}】吗？`,
                             okfun: () => {
                                 deleteSession(item)
-                                router.push('/')
+                               currentChatSession.value = {}
+                                console.log(Object.keys(currentChatSession).length)
                             }
                         }
                     )
@@ -272,6 +277,8 @@ const oncontextmenu = (item, e) => {
         ]
     })
 }
+
+
 
 //发送完消息的回调
 const reloadMsg = (messageId) => {
@@ -295,10 +302,60 @@ const loadContactApply = async () => {
         messageStore.setContactApplyCount(result.noReadCount, true);
     }
 }
+
 //群详情实现
 const chatGroupDetailRef = ref(null)
 const showGroupDetail = () => {
     chatGroupDetailRef.value.show(currentChatSession.value.contactId)
+}
+
+//重新加载
+const reloadChatSession = async (contactId) => {
+    await chatSessionModel.ReloadChatSession(contactId)
+    await onLoadSessionData()
+    await sendMessage(contactId)
+}
+
+//重新加载会话
+const sendMessage = async (contactId) => {
+    let curSession = chatSessionList.value.find(item => item.contactId == contactId)
+    if (curSession == null) {
+        //加载会话
+       await reloadChatSession(contactId)
+    } else {
+        ChatSessionClickHandle(curSession)
+    }
+}
+
+watch(() => route.query.timestamp, (newValue, oldValue) => {
+    if (newValue && route.query.chatId) {
+        sendMessage(route.query.chatId)
+    }
+}, {
+    deep: true,
+    immediate: true
+})
+const searchKey = ref("");
+const searchList = ref([])
+const search = () => {
+    if (!searchKey.value){
+        return
+    }
+    searchList.value = []
+    const regex = new RegExp('(' + searchKey.value + ')', 'gi')
+    chatSessionList.value.forEach(item => {
+        if (item.contactName.includes(searchKey.value) || item.lastMessage.includes(searchKey.value)){
+            let newData = Object.assign({},item)
+            newData.serchContactName = item.contactName.replace(regex, "<span class='highlight'>$1</span>")
+            newData.serchLastMessage = item.lastMessage.replace(regex, "<span class='highlight'>$1</span>")
+            searchList.value.push(newData)
+        }
+    })
+}
+
+const searchClickHandler = (item) => {
+    searchKey.value = undefined
+    ChatSessionClickHandle(item)
 }
 
 onMounted(() => {
@@ -317,16 +374,16 @@ onMounted(() => {
             proxy.Confirm({
                 message: "您已被强制下线，请重新登录",
                 okfun: () => {
-                   setTimeout(() => {
-                       wsClient.closeWs()
-                       router.push('/user/login')
-                   },200)
+                    setTimeout(() => {
+                        wsClient.closeWs()
+                        router.push('/user/login')
+                    }, 200)
                 },
                 showCancelBtn: false
             })
         }
         //更改群名称
-        if (message.messageType === 10){
+        if (message.messageType === 10) {
             let curSession = chatSessionList.value.find(item => {
                 return item.contactId == message.contactId
             })
@@ -359,7 +416,7 @@ onMounted(() => {
         sortChatSession(chatSessionList.value)
         if (message.sessionId != currentChatSession.value.sessionId) {
             console.log(message.sessionId != currentChatSession.value.sessionId)
-            messageStore.setChatCount(1,false);
+            messageStore.setChatCount(1, false);
         } else {
             // console.log(messageList.value)
             Object.assign(currentChatSession.value, message.extendData)

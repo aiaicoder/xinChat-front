@@ -20,7 +20,7 @@
                 @show="getContactInfo"
                 ref="popoverRef"
         >
-            <template #reference >
+            <template #reference>
                 <AvatarBase
                         :avatar="avatar"
                         :width="width"
@@ -39,6 +39,7 @@
                 </div>
             </template>
         </el-popover>
+        <SearchAdd ref="searchAddRef"></SearchAdd>
     </div>
 </template>
 
@@ -48,6 +49,8 @@ import UserBaseInfo from "@/components/UserBaseInfo.vue";
 import {ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import {UserContactControllerService} from "../../generated";
+import router from "@/router";
+import SearchAdd from "@/views/contact/SearchAdd.vue";
 
 const loginUse = useLoginUserStore()
 const props = defineProps({
@@ -66,7 +69,7 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-    avatar:{
+    avatar: {
         type: String,
         default: ''
     }
@@ -84,19 +87,19 @@ const showUserInfoPopoverHandler = () => {
 }
 
 const closePopover = () => {
-    document.removeEventListener('click', hidePopover,false )
+    document.removeEventListener('click', hidePopover, false)
 }
 
 const getContactInfo = async () => {
-    userInfo.value.id= props.userId
-    document.addEventListener('click', hidePopover,false)
+    userInfo.value.id = props.userId
+    document.addEventListener('click', hidePopover, false)
     if (loginUse.loginUser.id == props.userId) {
         userInfo.value = loginUse.loginUser
     } else {
-        if (userInfo.value.id.startsWith("G")){
+        if (userInfo.value.id.startsWith("G")) {
             return
         }
-        const res = await UserContactControllerService.getContactInfoUsingGet1(props.userId)
+        const res = await UserContactControllerService.getContactInfoUsingGet(props.userId)
         if (res.code != 0) {
             return
         }
@@ -105,12 +108,25 @@ const getContactInfo = async () => {
 }
 
 
-//todo 发送消息
+const emit = defineEmits(['closeDrawer'])
 const sendMessage = () => {
-    console.log("发送消息")
+    emit('closeDrawer')
+    popoverRef.value.hide()
+    router.push({
+        path: "/chat",
+        query: {
+            chatId: props.userId,
+            timestamp: new Date().getTime()
+        }
+    })
 }
-//todo 加为好友
+
+const searchAddRef = ref()
 const addContact = () => {
+    searchAddRef.value.show({
+        contactId: props.userId,
+        contactType: "USER"
+    })
     console.log("加为好友")
 }
 

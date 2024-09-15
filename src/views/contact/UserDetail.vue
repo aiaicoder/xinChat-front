@@ -95,6 +95,15 @@ const delContactData = () => {
     contactStore.setContactReload("REMOVE_USER")
 }
 
+const sendMessage = () => {
+    router.push({
+        path: "/chat",
+        query: {
+            chatId: userInfo.value.id,
+            timestamp: new Date().getTime()
+        }
+    })
+}
 watch(() => route.query.contactId, (newVal, oldVal) => {
     if (newVal) {
         loadUserInfo(newVal as string)
@@ -128,6 +137,7 @@ watch(() => route.query.contactId, (newVal, oldVal) => {
     display: flex;
     border-bottom: 1px solid #eaeaea;
     padding: 20px 0;
+
     .part-title {
         width: 60px;
         color: #9e9e9e;

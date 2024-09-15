@@ -1,6 +1,6 @@
 <template>
     <ShowImage :avatar="data.videoCoverUrl" part-type="chat"
-               :file-type="data.fileType" :show-play="true" :video-url="data.filePath || data.messageContent"></ShowImage>
+               :file-type="data.fileType" :show-play="true" :video-url="data.filePath || data.fileUrl || data.messageContent"></ShowImage>
 </template>
 
 <script setup lang="ts">
@@ -16,7 +16,10 @@ const props = defineProps({
     },
 })
 
-
+const print = () => {
+    console.log(props.data)
+}
+print()
 </script>
 
 <style scoped>
