@@ -72,6 +72,7 @@ const submitForm = async () => {
 
 const showEdit = (data = {}) => {
     dialogConfig.value.show = true
+    formData.value = data
     nextTick(() => {
         formDataRef.value.resetField()
         //@ts-ignore

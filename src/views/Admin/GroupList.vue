@@ -4,7 +4,7 @@
             <el-form :model="searchForm" label-width="70px" label-position="right">
                 <el-row>
                     <el-col :span="5">
-                        <el-form-item label="群ID" label-width="40px">
+                        <el-form-item label="ID" label-width="40px">
                             <el-input
                                     class="password-input"
                                     v-model="searchForm.groupId"
@@ -59,12 +59,12 @@
                 <div>{{ row.joinType == 0 ? "直接加入" : '管理员同意后加入' }}</div>
             </template>
             <template #slotStatus="{index,row}">
-                <span style="color: red" v-if="row.status == 0">已解散</span>
-                <span style="color: green" v-if="row.status == 1">正常</span>
+                <span style="color: red" v-if="row.status == 1">已解散</span>
+                <span style="color: green" v-if="row.status == 0">正常</span>
             </template>
             <template #slotOperation="{index,row}">
                 <div class="row-op-panel">
-                    <a class="row-op" href="javascript:void(0)" @click="dissolutionGroup(row)" v-if="row.status == 1">解散</a>
+                    <a class="row-op" href="javascript:void(0)" @click="dissolutionGroup(row)" v-if="row.status == 0">解散</a>
                 </div>
             </template>
         </Table>
@@ -146,10 +146,9 @@ const {proxy} = getCurrentInstance()
 
 const loadDataList = async () => {
     let params = {
-        current: tableData.value.pageNo,
+        current: tableData.value.current,
         pageSize: tableData.value.pageSize
     }
-    console.log(searchForm.value)
     Object.assign(params, searchForm.value)
     const result = await AdminGroupInfoControllerService.loadGroupInfoUsingPost(params)
     if (result.code != 0) {
@@ -174,7 +173,6 @@ const dissolutionGroup = (data) => {
                 message: '解散成功',
                 type: 'success',
             })
-            showDrawer.value = false;
         }
     })
 }

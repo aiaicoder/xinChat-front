@@ -116,7 +116,7 @@ const leaveGroup = () => {
 //发送消息
 const sendMessage = () => {
     router.push({
-        name: "/chat",
+        path: "/chat",
         query: {
             chatId: groupInfo.value.groupId,
             timestamp: new Date().getTime()

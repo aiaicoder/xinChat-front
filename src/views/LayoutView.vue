@@ -40,7 +40,7 @@
         </div>
         <div class="right-container">
             <router-view v-slot="{ Component }">
-                <keep-alive include="Chat">
+                <keep-alive :include="{Chat}">
                     <component :is="Component" ref="componentRef"></component>
                 </keep-alive>
             </router-view>
@@ -52,17 +52,21 @@
 import {Edit} from '@element-plus/icons-vue'
 import {routes} from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
-import {computed, ref, watch} from "vue";
+import {computed, ref} from "vue";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import router from "@/router";
 import Badge from "@/components/Badge.vue";
 import {useMessageCountStore} from "@/stores/MessageCountStore";
 import {useRoute} from "vue-router";
+import chat from "@/views/chat/Chat.vue";
+import Chat from "@/views/chat/Chat.vue";
 
 const messageStore = useMessageCountStore()
 const loginStore = useLoginUserStore()
 const activeIndex = ref('/chat')
 const route = useRoute()
+
+
 const highLight = (path) => {
     activeIndex.value = path
 }
@@ -94,14 +98,6 @@ const showRoutes = computed(() => {
     });
 });
 
-watch(() => route.path, (newValue, oldValue) => {
-        highLight(newValue)
-    }, {
-        deep: true,
-        immediate: true
-    }
-)
-
 
 </script>
 
@@ -110,6 +106,7 @@ watch(() => route.path, (newValue, oldValue) => {
   background: white;
   display: flex;
   overflow: hidden;
+
   .left-side {
     text-align: center;
     align-items: center;

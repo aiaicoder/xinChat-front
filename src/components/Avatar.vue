@@ -127,7 +127,6 @@ const addContact = () => {
         contactId: props.userId,
         contactType: "USER"
     })
-    console.log("加为好友")
 }
 
 </script>

@@ -31,7 +31,7 @@
         <!-- 分页 -->
         <div class="pagination" v-if="showPagination">
             <el-pagination v-if="dataSource.total" background :total="Number(dataSource.total)"
-                           :page-sizes="[15, 30, 50, 100]" :page-size="Number(dataSource.size)"
+                           :page-sizes="[10, 20, 50, 100]" :page-size="Number(dataSource.size)"
                            :current-page="Number(dataSource.current)"
                            layout="total, sizes, prev, pager, next, jumper" @size-change="handlePageSizeChange"
                            @current-change="handlePageNoChange" style="text-align: right">
@@ -136,10 +136,10 @@ const selectedHandler = (row, index) => {
     }
 }
 
-const print = () => {
-    console.log(props.dataSource)
-}
-print()
+// const print = () => {
+//     //console.log(props.dataSource)
+// }
+// print()
 </script>
 <style lang="scss">
 .pagination {

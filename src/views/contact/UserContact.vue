@@ -148,13 +148,11 @@ const partJump = (data: any) => {
     } else {
         rightTile.value = null
     }
-    //todo 处理联系人好友申请一读
     if (data.countKey) {
-        console.log(1111)
         messageStore.setContactApplyCount(0, true)
         UserSettingModel.removeNoReadCount(loginUse.loginUser.id)
     }
-    // console.log(data)
+    // //console.log(data)
     router.push(data.path)
 }
 const contactDetail = (contact: any, part: any) => {
@@ -218,6 +216,7 @@ const search = () => {
         if (contactName.includes(searchKey.value)) {
             let newData = Object.assign({}, item)
             newData.serchContactName = newData.contactName.replace(regex, "<span class='highlight'>$1</span>")
+            newData.serchContactName = newData.contactName.replace(regex, "<span class='highlight'>$1</span>")
             newData.contactId = item.groupId || item.contactId
             searchList.value.push(newData)
         }
@@ -267,7 +266,7 @@ onMounted(() => {
     loadContact('GROUP')
     loadContact('USER')
     loadMyGroup()
-    console.log(messageStore.contactApplyCount, "申请数")
+    //console.log(messageStore.contactApplyCount, "申请数")
 })
 </script>
 

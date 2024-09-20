@@ -41,11 +41,11 @@ async function saveChatMessages(message: Object[]): Promise<void> {
         }
         objectStore.put(msg)
     });
-    for (const item in chatSessionCountMap) {
-        // @ts-ignore
-        const noReadCount = chatSessionCountMap[item]
-        await ChatSessionModel.updateNoReadCount(item, noReadCount);
-    }
+    // for (const item in chatSessionCountMap) {
+    //     // @ts-ignore
+    //     const noReadCount = chatSessionCountMap[item]
+    //     await ChatSessionModel.updateNoReadCount(item, noReadCount);
+    // }
     return new Promise((resolve, reject) => {
         transaction.oncomplete = () => resolve(); // 移除 Event 参数
         transaction.onerror = (event: Event) => reject((event.target as IDBTransaction).error);
@@ -162,7 +162,7 @@ async function updateMessage(message: Object): Promise<void> {
     // @ts-ignore
     const messageById = await getMessageById(message.messageId);
 
-    console.log(messageById)
+    //console.log(messageById)
     // @ts-ignore
     messageById.messageContent = message.messageContent;
     // @ts-ignore

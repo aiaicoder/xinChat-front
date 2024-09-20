@@ -25,12 +25,12 @@
             <div class="title-panel" v-if="Object.keys(currentChatSession).length > 0">
                 <div class="title">
                     <span>{{ currentChatSession.contactName }}</span>
-                    <span v-if="currentChatSession.contactType == 1">
+                    <span v-if="currentChatSession.contactType === 1">
                         ({{ currentChatSession.memberCount }})
                     </span>
                 </div>
             </div>
-            <div v-if="currentChatSession.contactType ==1" class="iconfont icon-more" @click="showGroupDetail">
+            <div v-if="currentChatSession.contactType === 1" class="iconfont icon-more" @click="showGroupDetail">
             </div>
             <div class="chat-panel" v-show="Object.keys(currentChatSession).length > 0">
                 <div class="message-panel" ref="messagePanel" id="message-panel">
@@ -38,38 +38,43 @@
                          :key="index">
                         <!--展示消息时间-->
                         <template
-                                v-if="index > 1 && data.sendTime-messageList[index-1].sendTime >= 300000 && (data.messageType == 2 || data.messageType ==5)">
+                                v-if="index > 1 && data.sendTime-messageList[index-1].sendTime >= 300000 && (data.messageType === 2 || data.messageType ==5)">
                             <ChatMessageTime :data="data"></ChatMessageTime>
                         </template>
                         <!--展示系统消息-->
                         <template
-                                v-if="data.messageType == 3 // 群创建
-                            || data.messageType == 1 //打着招呼消息
-                            || data.messageType == 9 //加入群组
-                            || data.messageType == 8 //解散
-                            || data.messageType == 11 //退出
-                            || data.messageType == 12 //被踢
-                            || data.messageType == 13 //撤回
+                                v-if="data.messageType === 3 // 群创建
+                            || data.messageType === 1 //打着招呼消息
+                            || data.messageType === 9 //加入群组
+                            || data.messageType === 8 //解散
+                            || data.messageType === 11 //退出
+                            || data.messageType === 12 //被踢
+                            || data.messageType === 13 //撤回
 "
                         >
                             <ChatMessageSys :data="data"></ChatMessageSys>
                         </template>
-                        <template v-if="data.messageType == 1 || data.messageType == 2 || data.messageType==5">
+                        <template v-if="data.messageType === 1 || data.messageType === 2 || data.messageType === 5">
                             <ChatMessage :data="data" :currentChatSession="currentChatSession"></ChatMessage>
                         </template>
                     </div>
                 </div>
                 <MessageSend :currentChatSession="currentChatSession" @reloadMsg="reloadMsg"></MessageSend>
             </div>
-            <div class="chat-blank" v-show="Object.keys(currentChatSession).length == 0">
+            <div class="chat-blank" v-show="Object.keys(currentChatSession).length === 0">
                 <Blank></Blank>
             </div>
         </template>
     </layout>
     <ChatGroupDetail ref="chatGroupDetailRef" @deleteSession="deleteChatSessionList"></ChatGroupDetail>
 </template>
-
-<script setup lang="ts">
+<script>
+export default {
+    // eslint-disable-next-line vue/multi-word-component-names
+    name: "Chat",
+}
+</script>
+<script setup>
 import Layout from "@/components/Layout.vue";
 import {getCurrentInstance, nextTick, onMounted, ref, watch} from "vue";
 import ChatSessionModel from "@/db/ChatSessionModel";
@@ -92,9 +97,7 @@ import router from "@/router";
 import wsClient from "@/webSocket/wsClient";
 import {useRoute} from "vue-router";
 import chatSessionModel from "@/db/ChatSessionModel";
-import {c} from "vite/dist/node/types.d-aGj9QkWt";
 import SearchResult from "@/views/chat/SearchResult.vue";
-
 const login = useLoginUserStore()
 const {proxy} = getCurrentInstance()
 const sysSetting = SystemSettingStore()
@@ -104,7 +107,6 @@ const route = useRoute()
 const chatSessionList = ref([])
 const onLoadSessionData = async () => {
     const res = await ChatSessionModel.getAllSessions()
-    console.log(res)
     let noReadCount = 0
     res.forEach(item => {
         noReadCount = noReadCount + item.noReadCount
@@ -131,11 +133,10 @@ const goToBottom = () => {
 
 
 //对会话进行排序
-const sortChatSession = (dataList: Object[]) => {
-    console.log(dataList)
+const sortChatSession = (dataList) => {
     dataList.sort((a, b) => {
         const topTypeResult = b["topType"] - a["topType"]
-        if (topTypeResult == 0) {
+        if (topTypeResult === 0) {
             return b["lastReceiveTime"] - a["lastReceiveTime"]
         }
         return topTypeResult
@@ -145,7 +146,7 @@ const sortChatSession = (dataList: Object[]) => {
 
 //置顶会话
 const setTop = (item) => {
-    if (item.topType == 0) {
+    if (item.topType === 0) {
         item.topType = 1
     } else {
         item.topType = 0
@@ -183,14 +184,14 @@ const ChatSessionClickHandle = (item) => {
     goToBottom()
 }
 
-const loadChatMessage = async () => {
+const loadChatMessage = () => {
     if (messageCountInfo.nodata) {
         return
     }
     messageCountInfo.pageNo++
     //@ts-ignore
-    await chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
-        if (res.messageCount == res.currentPage) {
+     chatMessageModel.getChatMessage(currentChatSession.value.sessionId, messageCountInfo.pageNo, messageCountInfo.maxMessageId).then(res => {
+        if (res.messageCount === res.currentPage) {
             messageCountInfo.nodata = true
         }
         const dataList = res.messages
@@ -198,13 +199,21 @@ const loadChatMessage = async () => {
             //@ts-ignore
             return a.messageId - b.messageId
         })
+         // 创建一个新的数组用于存储去重后的数据
+         const uniqueDataList = [];
+        // 遍历 dataList，并将不重复的元素添加到 uniqueDataList 中
+         for (let i = 0; i < dataList.length; i++) {
+             if (i === 0 || dataList[i].messageId != dataList[i - 1].messageId) {
+                 uniqueDataList.push(dataList[i]);
+             }
+         }
         const lastMessage = messageList.value[0];
         //分页一点一点添加
-        messageList.value = dataList.concat(messageList.value)
-        // console.log(messageList.value)
+        messageList.value =  uniqueDataList.concat(messageList.value)
+        // //console.log(messageList.value)
         messageCountInfo.pageNo = res.currentPage;
         messageCountInfo.pageTotal = res.messageCount;
-        if (res.currentPage == 1) {
+        if (res.currentPage === 1) {
             //@ts-ignore
             messageCountInfo.maxMessageId = res.messages.length > 0 ? res.messages[res.messages.length - 1].messageId : null
             goToBottom()
@@ -214,9 +223,9 @@ const loadChatMessage = async () => {
                 document.querySelector("#message" + lastMessage.messageId)?.scrollIntoView()
             })
         }
-        console.log(messageList.value)
+        //console.log(messageList.value)
     }).catch((err) => {
-        console.log(err, "出错")
+        //console.log(err, "出错")
     })
 }
 
@@ -227,20 +236,21 @@ const loadSendChatMessage = (messageId) => {
     chatMessageModel.getMessageById(messageId).then(res => {
         //分页一点一点添加
         messageList.value = messageList.value.concat(res)
-        console.log(messageList.value)
+        //console.log(messageList.value)
     })
 }
 
 
 //删除会话
-const deleteChatSessionList = (contactId: String) => {
-    chatSessionList.value = chatSessionList.value.filter(item => item.contactId != contactId)
+const deleteChatSessionList = (contactId) => {
+    chatSessionList.value = chatSessionList.value.filter(item => item.contactId !== contactId)
 }
 
 const deleteSession = (item) => {
     deleteChatSessionList(item.contactId)
     item.status = 0;
     ChatSessionModel.updateAll(item)
+    localStorage.setItem("currentSessionId", null)
     currentChatSession.value = {}
 }
 
@@ -253,7 +263,7 @@ const oncontextmenu = (item, e) => {
         y: e.y,
         items: [
             {
-                label: item.topType == 0 ? '置顶' : '取消置顶',
+                label: item.topType === 0 ? '置顶' : '取消置顶',
                 onClick: () => {
                     sortChatSession(chatSessionList.value)
                     setTop(item)
@@ -268,7 +278,7 @@ const oncontextmenu = (item, e) => {
                             okfun: () => {
                                 deleteSession(item)
                                currentChatSession.value = {}
-                                console.log(Object.keys(currentChatSession).length)
+                                //console.log(Object.keys(currentChatSession).length)
                             }
                         }
                     )
@@ -335,6 +345,7 @@ watch(() => route.query.timestamp, (newValue, oldValue) => {
     deep: true,
     immediate: true
 })
+
 const searchKey = ref("");
 const searchList = ref([])
 const search = () => {
@@ -365,12 +376,12 @@ onMounted(() => {
     localStorage.setItem("currentSessionId", currentChatSession.value.sessionId)
     EventBus.on("reloadMessage", (message) => {
         //好友申请消息
-        if (message.messageType == 4) {
+        if (message.messageType === 4) {
             loadContactApply()
             return
         }
         //强制下线
-        if (message.messageType == 7) {
+        if (message.messageType === 7) {
             proxy.Confirm({
                 message: "您已被强制下线，请重新登录",
                 okfun: () => {
@@ -381,19 +392,20 @@ onMounted(() => {
                 },
                 showCancelBtn: false
             })
+            return
         }
         //更改群名称
         if (message.messageType === 10) {
-            let curSession = chatSessionList.value.find(item => {
-                return item.contactId == message.contactId
+            const curSession = chatSessionList.value.find(item => {
+                return item.contactId === message.contactId
             })
             curSession.contactName = message.extendData
             return;
         }
         //文件消息
-        if (message.messageType == 6) {
+        if (message.messageType === 6) {
             const localMessage = messageList.value.find(item => {
-                if (item.messageId == message.messageId) {
+                if (item.messageId === message.messageId) {
                     return item
                 }
             })
@@ -404,21 +416,22 @@ onMounted(() => {
             }
             return
         }
+
         const curSession = chatSessionList.value.find(item => {
-            return item.sessionId == message.sessionId
+            return item.sessionId === message.sessionId
         })
         if (curSession == null) {
-            console.log(message.extendData, "消息体")
+            //console.log(message.extendData, "消息体")
             chatSessionList.value.push(message.extendData)
         } else {
             Object.assign(curSession, message.extendData)
         }
         sortChatSession(chatSessionList.value)
-        if (message.sessionId != currentChatSession.value.sessionId) {
-            console.log(message.sessionId != currentChatSession.value.sessionId)
+        if (message.sessionId !== currentChatSession.value.sessionId) {
+            //console.log(message.sessionId !== currentChatSession.value.sessionId)
             messageStore.setChatCount(1, false);
         } else {
-            // console.log(messageList.value)
+            //console.log(messageList.value)
             Object.assign(currentChatSession.value, message.extendData)
             messageList.value.push(message)
             goToBottom()
@@ -430,7 +443,7 @@ onMounted(() => {
             const scrollTop = e.target.scrollTop;
             //计算到底部的距离
             distanceToBottom = content.scrollHeight - content.clientHeight - scrollTop;
-            if (scrollTop == 0 && messageList.value.length > 0) {
+            if (scrollTop === 0 && messageList.value.length > 0) {
                 loadChatMessage()
             }
         })

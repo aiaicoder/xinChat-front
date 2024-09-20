@@ -104,6 +104,8 @@ const sendMessage = () => {
         }
     })
 }
+
+
 watch(() => route.query.contactId, (newVal, oldVal) => {
     if (newVal) {
         loadUserInfo(newVal as string)

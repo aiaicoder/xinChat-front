@@ -18,9 +18,6 @@ const props = defineProps({
         }
     }
 })
-onMounted(() =>{
-    console.log(props.data)
-})
 </script>
 
 <style lang="scss" scoped>

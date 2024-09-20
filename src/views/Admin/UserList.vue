@@ -167,10 +167,9 @@ const forceOffLine = async (data) => {
 }
 const loadDataList = async () => {
     let params = {
-        current: tableData.value.pageNo,
+        current: tableData.value.current,
         pageSize: tableData.value.pageSize
     }
-    console.log(searchForm.value)
     Object.assign(params, searchForm.value)
     const result = await AdminUserControllerService.listUserByPageUsingPost(params)
     if (result.code != 0) {

@@ -24,7 +24,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
     async function fetchLoginUser() {
         const res = await UserControllerService.getLoginUserUsingGet()
         if (res.code == 0 && res.data) {
-            // console.log("获取用户信息成功", res.data)
+            // //console.log("获取用户信息成功", res.data)
             loginUser.value = res.data
         }
 

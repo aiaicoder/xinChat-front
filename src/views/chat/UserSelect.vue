@@ -53,7 +53,7 @@ const dialogConfig = ref({
     show: false,
     buttons: [
         {
-            name: '确定',
+            text: '确定',
             type: 'primary',
             click: () => {
                 submitData()
@@ -72,7 +72,7 @@ const formData = ref({
 })
 
 const show = ({contactList, groupId, opType}) => {
-    console.log(contactList)
+    //console.log(contactList)
     dialogConfig.value.title = opType === 0 ? '移除群员' : '添加群员'
     dialogConfig.value.show = true
     dataList.value = contactList

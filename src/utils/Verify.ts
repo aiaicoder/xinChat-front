@@ -8,7 +8,6 @@ const regs = {
 
 const verify = (rule: any, value: any, reg: any, callback: any) => {
     if (value) {
-        console.log(value)
         if (reg.test(value)) {
             callback()
         } else {

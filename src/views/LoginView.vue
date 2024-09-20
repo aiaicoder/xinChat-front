@@ -248,7 +248,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                     break;
             }
         } else {
-            console.log('error submit!', fields)
+            //console.log('error submit!', fields)
         }
     })
 }

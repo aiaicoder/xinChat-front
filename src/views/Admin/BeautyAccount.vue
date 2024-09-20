@@ -91,10 +91,9 @@ const columns = [
 const searchForm = ref({})
 const loadDataList = async () => {
     let params = {
-        current: tableData.value.pageNo,
+        current: tableData.value.current,
         pageSize: tableData.value.pageSize
     }
-    console.log(searchForm.value)
     Object.assign(params, searchForm.value)
     const result = await AdminUserBeautyControllerService.loadBeautyListUsingPost(params)
     if (result.code != 0) {

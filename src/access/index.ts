@@ -6,6 +6,7 @@ import checkAccess from "@/access/checkAccess";
 import {useLoginUserStore} from "@/stores/UseLoginUserStore";
 import wsClient from "@/webSocket/wsClient";
 
+let wsInit = false;
 router.beforeEach(async (to, from, next) => {
     const loginStore = useLoginUserStore();
     //自动登录
@@ -15,7 +16,8 @@ router.beforeEach(async (to, from, next) => {
         //同步等待用户登录成功
         await loginStore.fetchLoginUser();
         loginUser = loginStore.loginUser;
-        if (loginUser){
+        if (loginUser && !wsInit){
+            wsInit = true;
             wsClient.initWs({token: loginUser.token})
         }
     }

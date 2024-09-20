@@ -25,7 +25,7 @@ const dialogConfig = ref({
 })
 const groupEditRef = ref();
 const show = (data) => {
-    console.log(data)
+    //console.log(data)
     dialogConfig.value.show = true;
     nextTick(() => {
         groupEditRef.value.show(data)

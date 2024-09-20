@@ -50,7 +50,7 @@ const props = defineProps({
 })
 
 // const print = () => {
-//     console.log(props.avatar)
+//     //console.log(props.avatar)
 // }
 // print()
 
@@ -62,7 +62,6 @@ let dp = null; // 保存 DPlayer 实例
 // 初始化 DPlayer
 const initDPlayer = () => {
     const container = dplayerContainer.value;
-    console.log(props.videoUrl)
     dp = new DPlayer({
         container: container,
         video: {

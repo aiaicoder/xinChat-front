@@ -189,7 +189,7 @@ async function updateNoReadCount(contactId: string, noReadCount: number): Promis
     session.noReadCount = noReadCount; // 更新 noReadCount
     // 保存更新后的会话
     await saveChatSession(session);
-    console.log("Session updated successfully.");
+    //console.log("Session updated successfully.");
 }
 
 async function getSessionBySessionId(sessionId: string): Promise<Object> {

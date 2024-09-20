@@ -16,14 +16,14 @@ let needReconnect: boolean = true;
 let lockReconnect = false;
 
 const initWs = (config: any) => {
-    console.log('初始化相关配置');
+    //console.log('初始化相关配置');
     // 根据生产环境配置ws地址
     if (NODE_ENV === 'development') {
         wsUrl = BACKEND_HOST_LOCAL_WS + config.token;
     } else {
         wsUrl = BACKEND_HOST_PROD_WS + config.token;
     }
-    if (!config.token){
+    if (!config.token) {
         return
     }
     maxReconnectTimes = 5;
@@ -34,11 +34,11 @@ const createWs = () => {
     if (wsUrl === '') {
         return;
     }
-    if (!ws || ws.readyState === WebSocket.CLOSED){
+    if (!ws || ws.readyState === WebSocket.CLOSED) {
         ws = new WebSocket(wsUrl);
     }
     ws.onopen = () => {
-        console.log('ws连接成功');
+        //console.log('ws连接成功');
         ws?.send('heart beat');
         maxReconnectTimes = 5;
 
@@ -48,7 +48,7 @@ const createWs = () => {
 
         heartbeatInterval = setInterval(() => {
             if (ws != null && ws.readyState === WebSocket.OPEN) {
-                console.log('发送心跳消息');
+                //console.log('发送心跳消息');
                 ws.send('heart beat');
             }
         }, 5000);
@@ -59,6 +59,7 @@ const createWs = () => {
         console.log('收到服务端消息', e.data);
         const message = JSON.parse(e.data);
         const messageType = message.messageType;
+        const leaveGroupId = message.extendData;
         switch (messageType) {
             case 0:
                 // 保存会话信息
@@ -66,11 +67,11 @@ const createWs = () => {
                     }
                 );
                 // 更新聊天记录
-                chatMessageModel.addUnreadMessage(message.extendData.chatMessageList).then(() => {
+                chatMessageModel.saveChatMessages(message.extendData.chatMessageList).then(() => {
                     }
                 );
                 // 更新联系人申请数
-                userSettingModel.updateNoReadCount(useLogin.loginUser.id, message.extendData.applyCount,false).then(() => {
+                userSettingModel.updateNoReadCount(useLogin.loginUser.id, message.extendData.applyCount, false).then(() => {
                     }
                 );
                 break;
@@ -80,7 +81,7 @@ const createWs = () => {
                 ))
                 break;
             case 4://好友申请消息
-                userSettingModel.updateNoReadCount(useLogin.loginUser.id, 1,true).then(() => {
+                userSettingModel.updateNoReadCount(useLogin.loginUser.id, 1, true).then(() => {
                         EventBus.emit('reloadMessage', message)
                     }
                 );
@@ -124,11 +125,11 @@ const createWs = () => {
                     sessionInfo.memberCount = message.memberCount;
                 }
                 // @ts-ignore
-                ChatSessionModel.update(sessionInfo, localStorage.getItem('currentSessionId')).then(() =>
-                    console.log('保存会话成功')
+                ChatSessionModel.update(sessionInfo, localStorage.getItem('currentSessionId')).then(() => {
+                    }
                 );
+                //写入本地消息
                 ChatMessageModel.saveChatMessage(message).then(() => {
-                    console.log('保存消息成功', message);
                     if (message.contactId.startsWith("G")) {
                         ChatSessionModel.getSessionByUserIdAndContactId(message.contactId).then(r => {
                                 // @ts-ignore
@@ -157,6 +158,10 @@ const createWs = () => {
                                     ChatSessionModel.saveChatSession(r).then()
                                 }
                                 message.extendData = r
+                                //退出群聊，当前用户不收到消息
+                                if (messageType === 11 && leaveGroupId == useLogin.loginUser.id) {
+                                    return
+                                }
                                 EventBus.emit('reloadMessage', message)
                             }
                         );
@@ -169,18 +174,18 @@ const createWs = () => {
     };
 
     ws.onclose = () => {
-        console.log('ws连接关闭');
+        //console.log('ws连接关闭');
         reconnect();
     };
 
     ws.onerror = () => {
-        console.log('客户端连接失败重连');
+        //console.log('客户端连接失败重连');
         reconnect();
     };
 
     const reconnect = () => {
         if (!needReconnect) {
-            console.log('连接断开无需重连');
+            //console.log('连接断开无需重连');
             return;
         }
         if (ws != null) {
@@ -192,19 +197,19 @@ const createWs = () => {
         lockReconnect = true;
         if (maxReconnectTimes > 0) {
             setTimeout(() => {
-                console.log('重连中');
+                //console.log('重连中');
                 createWs();
                 maxReconnectTimes--;
                 lockReconnect = false;
             }, 5000);
         } else {
-            console.log('重连次数失败');
+            //console.log('重连次数失败');
         }
     };
 };
 
 const closeWs = () => {
-    console.log('WebSocket连接已关闭');
+    //console.log('WebSocket连接已关闭');
     needReconnect = false;
     ws?.close();
 };

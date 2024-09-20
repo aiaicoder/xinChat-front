@@ -11,7 +11,7 @@
             <el-form-item label="性别" prop="gender">
                 <el-radio-group v-model="formData.sex">
                     <el-radio :label="1">男</el-radio>
-                    <el-radio :label="2">女</el-radio>
+                    <el-radio :label="0">女</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="朋友权限" prop="joinType">
@@ -64,7 +64,6 @@ const props = defineProps({
 
 const coverFile = (userAvatar) => {
     formData.value.userAvatar = userAvatar
-    console.log(formData.value)
 }
 const formData = ref({
     ...props.data
@@ -90,7 +89,6 @@ const saveUserInfo = () => {
             params.areaCode = params.area.areaCode.join(',')
             params.areaName = params.area.areaName.join(',')
             delete params.area
-            console.log(params)
         }
         const res = await UserControllerService.updateMyUserUsingPost(params)
         if (res.code !== 0) {

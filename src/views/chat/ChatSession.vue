@@ -33,7 +33,7 @@ const props = defineProps({
 })
 
 // const print = () =>{
-//     console.log(props.data)
+//     //console.log(props.data)
 // }
 // print()
 </script>

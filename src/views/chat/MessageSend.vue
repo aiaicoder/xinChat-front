@@ -272,7 +272,7 @@ const checkFile = (fileType,fileSize,fileName) =>{
 const fileLimit = 10
 const checkFileLimit = (files) =>{
     if (files.length > fileLimit){
-        console.log(files)
+        //console.log(files)
         proxy.Confirm({
             message: `最多只能选择${fileLimit}个文件`,
             showCancelButton: false,

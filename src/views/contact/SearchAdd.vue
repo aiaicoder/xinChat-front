@@ -46,7 +46,7 @@ const dialogConfig = ref({
     buttons: [
         {
             type: 'primary',
-            name: '确定',
+            text: '确定',
             click: () => {
                 submitApply()
             }
@@ -82,7 +82,6 @@ const show = (data: any) => {
         formDataRef.value.resetFields()
         formData.value = Object.assign({}, data)
         formData.value.applyInfo = '我是' + loginUse.loginUser.userName
-        console.log(formData)
     })
 }
 defineExpose({
